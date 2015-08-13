@@ -16,7 +16,9 @@
 
     <!-- Custom CSS -->
     <link href="css/simple-sidebar.css" rel="stylesheet">
-
+    <!-- jQuery -->
+    <script type="text/javascript" src="js/jquery-1.11.3.min.js"></script>
+    <script type="text/javascript" src="js/main.js"></script>
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -70,20 +72,23 @@
               <h2>Create Notebook!</h2>
 
               <!--<form class="form-horizontal" name="login">-->
+                <div id="message">
+                  
+                </div>
                    <fieldset>
                   <div class="form-group">
                     <div class="col-lg-10">
-                      <input style="width:300px;height:30px" type="text" class="form-control" name="blog_name" id="blog_name" placeholder="Name">
+                      <input style="width:300px;height:30px" type="text" class="form-control" name="nb_name" id="nb_name" placeholder="Name">
                     </div>
                   </div>
                   <div class="form-group">
                     <div class="col-lg-10">
-                      <input style="width:300px;height:30px" type="text" class="form-control" name="blog_desc" id="blog_desc" placeholder="Description">
+                      <input style="width:300px;height:30px" type="text" class="form-control" name="nb_desc" id="nb_desc" placeholder="Description">
                     </div>
                 </div>  
                   <div class="form-group">
                     <div class="col-lg-10 col-lg-offset-2">
-                      <button type="Aceptar" name="a" id="a" class="btn btn-primary" onclick="create_blog()">Create</button>
+                      <button type="Aceptar" name="a" id="a" class="btn btn-primary" onclick="createNotebook()">Create</button>
                     </div>
                   </div>
                 </fieldset>
@@ -98,20 +103,17 @@
     </div>
     <!-- /#wrapper -->
 
-    <!-- jQuery -->
-    <script src="js/jquery-1.11.3.min.js"></script>
-    <script type="text/javascript" src="js/main.js"></script>
 
      <!--Bootstrap Core JavaScript -->
-    <script src="js/bootstrap.min.js"></script>
+    <!--<script src="js/bootstrap.min.js"></script>-->
 
     <!--[> Menu Toggle Script <]-->
-    <script>
-    $("#menu-toggle").click(function(e) {
-        e.preventDefault();
-        $("#wrapper").toggleClass("toggled");
-    });
-    </script>
+    <!--<script>-->
+    <!--$("#menu-toggle").click(function(e) {-->
+        <!--e.preventDefault();-->
+        <!--$("#wrapper").toggleClass("toggled");-->
+    <!--});-->
+    <!--</script>-->
 
 </body>
 
