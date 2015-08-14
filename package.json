@@ -1,8 +1,11 @@
 {
-    "name"    : "Beenotes",
-    "version" : "0.0.1",
-    "main"    : "main.js",
-    "scripts" : {
-      "start" : "electron ."
-    }
+  "name": "Beenotes",
+  "version": "0.0.1",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "dependencies": {
+    "diskdb": "^0.1.14"
+  }
 }

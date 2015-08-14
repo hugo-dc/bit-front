@@ -1,6 +1,38 @@
 var app = require('app'); // Module to control application life
 var BrowserWindow = require('browser-window'); // Module to create native browser window.
 
+// communicates UI with backend
+var ipc = require('ipc');
+
+// Disk database
+var db = require('diskdb');
+
+// connects to the bndb directory
+db.connect('bndb', ['settings']);
+
+// find previous settings
+var settings = db.settings.find();
+
+// Initialize notepad data
+var ndata = {};
+
+// if no settings found, create a default
+if (db.settings.count() == 0) {
+  db.settings.save([
+    {
+      "main_nb" : "",
+      "notebooks" : [],
+      "favorites" : [],
+    }
+    ]);
+  settings = db.settings.find();
+}
+
+var blogExist = function(name) {
+  // TODO: to be implemented
+  return false;
+}
+
 // Report crashes to our server.
 require('crash-reporter').start();
 
@@ -37,3 +69,26 @@ app.on('ready', function() {
     mainWindow = null;
   });
 });
+
+ipc.on('create-notebook', function(event, args) {
+  ndata.id    = args.name.replace(/\s+/g, '').toLowerCase(); 
+  ndata.icon  = 'fa-edit';
+  ndata.text  = args.name;
+  ndata.desc  = args.desc;
+  //ndata.link  = "#";
+  ndata.click = 'openNotebook(' + args.name + ')';
+
+  if (blogExist(args.name)) {
+    // TODO: return message using ipc 
+    return;
+  } 
+  var ix = settings.length - 1;
+  settings = db.settings.find();
+  settings[ix]["notebooks"].push(ndata);
+  db.settings.save(settings[ix]);
+
+  //TODO: send message using ipc to indicate notebook is ready!
+
+});
+
+

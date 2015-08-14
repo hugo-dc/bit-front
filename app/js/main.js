@@ -5,6 +5,8 @@ app.controller('MainController', function($scope) {
   $scope.title = "Personal Notes";
   $scope.welcome_vis = true;
   $scope.createn_vis = false;
+  $scope.ipc = require('ipc');
+
   $scope.pgCreateNotebook = function() {
   };
 
@@ -12,10 +14,17 @@ app.controller('MainController', function($scope) {
     if ( name == "main"  )
     {
       $scope.createn_vis = false;
+      $scope.welcome_vis = true;
     }else {
       $scope.welcome_vis = false;
       $scope.createn_vis = true;
     }
+  };
+
+  $scope.createNotebook = function (name, desc) {
+    var args = { "name": name,
+                 "desc": desc };
+    $scope.ipc.send('create-notebook', args);
   };
 });
 
