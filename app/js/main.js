@@ -1,11 +1,12 @@
 
 var app = angular.module('Beenotes', []);
 
+var ipc = require('ipc');
+
 app.controller('MainController', function($scope) {
   $scope.title = "Personal Notes";
   $scope.welcome_vis = true;
   $scope.createn_vis = false;
-  $scope.ipc = require('ipc');
 
   $scope.pgCreateNotebook = function() {
   };
@@ -24,41 +25,22 @@ app.controller('MainController', function($scope) {
   $scope.createNotebook = function (name, desc) {
     var args = { "name": name,
                  "desc": desc };
-    $scope.ipc.send('create-notebook', args);
+
+    if (name == "" || desc == "" || name == null || desc == null)
+    {
+      $scope.message = "Provide both values";
+    } else {
+      ipc.send('create-notebook', args);
+    }
   };
+
 });
 
+ipc.on('notebook-exists', function() {
+  var main = document.getElementById("html");
+  var sc = angular.element(main).scope();
+  sc.$apply(function() {
+    sc.message =  "Notebook already exists!";
+  });
+});
 
-/*--------------------------------------------------------------------
- * create_notebook - create new notebook
- * -----------------------------------------------------------------*/
-var createNotebook = function() 
-{
-  // Check if both fields are filled:
-  var name = document.getElementById('nb_name');
-  var desc = document.getElementById('nb_desc');
-  if ( name.value == "" || desc.value == ""  )
-  {
-     showMessage('Provide both fields');
-     return;
-  }
-
-  // TODO: Implement here, logic to call backend and create the
-  // required DB or files
-}
-
-/*--------------------------------------------------------------------
- * showMessage - Show a message in the page
- * -----------------------------------------------------------------*/
-var showMessage = function(message) 
-{
-  var mess = document.getElementById('message');
-
-  // remove previous message if any
-  while(mess.firstChild) {
-    mess.removeChild(mess.firstChild);
-  }
-  var p    = document.createElement('P');
-  p.appendChild(document.createTextNode(message));
-  mess.appendChild(p)
-}

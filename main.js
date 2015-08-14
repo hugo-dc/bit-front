@@ -29,7 +29,14 @@ if (db.settings.count() == 0) {
 }
 
 var blogExist = function(name) {
-  // TODO: to be implemented
+  var ix = settings.length - 1;
+  var nbs = settings[ix].notebooks;
+
+  for (i in nbs )
+  {
+    if (name == nbs[i].name)
+      return true; 
+  }
   return false;
 }
 
@@ -71,23 +78,26 @@ app.on('ready', function() {
 });
 
 ipc.on('create-notebook', function(event, args) {
+  console.log(args);
   ndata.id    = args.name.replace(/\s+/g, '').toLowerCase(); 
   ndata.icon  = 'fa-edit';
-  ndata.text  = args.name;
+  ndata.name  = args.name;
   ndata.desc  = args.desc;
   //ndata.link  = "#";
   ndata.click = 'openNotebook(' + args.name + ')';
 
   if (blogExist(args.name)) {
     // TODO: return message using ipc 
-    return;
-  } 
-  var ix = settings.length - 1;
-  settings = db.settings.find();
-  settings[ix]["notebooks"].push(ndata);
-  db.settings.save(settings[ix]);
+    console.log('Notebook exists');
+    mainWindow.webContents.send('notebook-exists');
+  } else {
+    var ix = settings.length - 1;
+    settings = db.settings.find();
+    settings[ix]["notebooks"].push(ndata);
+    db.settings.save(settings[ix]);
 
-  //TODO: send message using ipc to indicate notebook is ready!
+    //TODO: send message using ipc to indicate notebook is ready!
+  } 
 
 });
 

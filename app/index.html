@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" ng-app="Beenotes" ng-controller="MainController">
+<html id="html" lang="en" ng-app="Beenotes" ng-controller="MainController">
 
 <head>
 
@@ -17,6 +17,7 @@
     <!-- Custom CSS -->
     <link href="css/simple-sidebar.css" rel="stylesheet">
 
+    <script src="js/jquery-1.11.3.min.js"></script>
     <script type="text/javascript" src="js/angular.min.js"></script>
     <script src="js/main.js"></script>
 
@@ -76,7 +77,7 @@
 
                   <!--<form class="form-horizontal" name="login">-->
                   <div id="message">
-                      
+                    <p>{{message}}</p> 
                   </div>
                   <fieldset>
                   <div class="form-group">
@@ -105,9 +106,6 @@
 
     </div>
     <!-- /#wrapper -->
-
-    <!-- jQuery -->
-    <!--<script src="js/jquery-1.11.3.min.js"></script>-->
 
     <!-- Bootstrap Core JavaScript -->
     <!--<script src="js/bootstrap.min.js"></script>-->
