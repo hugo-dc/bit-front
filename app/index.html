@@ -42,13 +42,13 @@
                     </a>
                 </li>
                 <li>
-                    <a class="active" href="index.html">Home</a>
+                <a ng-class="{'active': isActive('index')}" href="#" ng-click="pgHome();">Home</a>
                 </li>
                 <li>
-                    <a href="#" ng-click="pgCreateNotebook();">Create</a>
+                <a ng-class="{active: isActive('create')}" href="#" ng-click="pgCreateNotebook();">Create</a>
                 </li>
                 <li>
-                    <a href="#">Search</a>
+                <a ng-class="{active: isActive('search')}" href="#">Search</a>
                 </li>
             </ul>
         </div>
@@ -63,7 +63,7 @@
                     <div class="col-lg-12">
                         <h1>Welcome!</h1>
                         <p>You can create your first Notebook!</p>
-                        <a href="#" ng-click="toggleVis('createn')" class="btn btn-default">Create Notebook</a>
+                        <a href="#" ng-click="pgCreateNotebook()" class="btn btn-default">Create Notebook</a>
                     </div>
                 </div>
 
