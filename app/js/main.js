@@ -16,6 +16,10 @@ app.controller('MainController', function($scope) {
   $scope.pgCreateNotebook = function() {
     $scope.toggleVis('createn');
   };
+  
+  $scope.pgSearchNotebook = function() {
+    $scope.toggleVis('search');
+  };
 
   $scope.toggleVis = function(name) {
     if ( name == "home"  )
@@ -23,10 +27,21 @@ app.controller('MainController', function($scope) {
       $scope.current = 'index';
       $scope.createn_vis = false;
       $scope.welcome_vis = true;
-    }else {
+	  $scope.search_vis = false;
+    } else if ( name == "search"  )
+    {
+      $scope.current = 'search';
+      $scope.createn_vis = false;
+      $scope.welcome_vis = false;
+	  $scope.search_vis = true;
+    }
+	else {
       $scope.current = 'create';
       $scope.welcome_vis = false;
       $scope.createn_vis = true;
+	  $scope.search_vis = false;
+	  $scope.nb_name = "";
+	  $scope.nb_desc = "";
     }
   };
 
