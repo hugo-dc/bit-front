@@ -3,45 +3,72 @@ var app = angular.module('Beenotes', []);
 
 var ipc = require('ipc');
 
+ipc.send('load-notebooks');
+
 app.controller('MainController', function($scope) {
   $scope.title = "Personal Notes";
-  $scope.welcome_vis = true;
+  $scope.loading_vis = true;
+  $scope.welcome_vis = false;
   $scope.createn_vis = false;
   $scope.current = "index";
 
   $scope.pgHome = function() {
-    $scope.toggleVis('home');
+    $scope.toggleVis('index');
   }
 
   $scope.pgCreateNotebook = function() {
-    $scope.toggleVis('createn');
+    $scope.toggleVis('create');
   };
   
   $scope.pgSearchNotebook = function() {
     $scope.toggleVis('search');
   };
 
+  $scope.openNotebook = function(name) {
+    $scope.toggleVis("notebook");
+    $scope.current = name;
+  };
+
   $scope.toggleVis = function(name) {
-    if ( name == "home"  )
-    {
-      $scope.current = 'index';
-      $scope.createn_vis = false;
-      $scope.welcome_vis = true;
-	  $scope.search_vis = false;
-    } else if ( name == "search"  )
-    {
-      $scope.current = 'search';
-      $scope.createn_vis = false;
-      $scope.welcome_vis = false;
-	  $scope.search_vis = true;
-    }
-	else {
-      $scope.current = 'create';
-      $scope.welcome_vis = false;
-      $scope.createn_vis = true;
-	  $scope.search_vis = false;
-	  $scope.nb_name = "";
-	  $scope.nb_desc = "";
+    $scope.current = name;
+    switch(name) {
+      case "index":
+        $scope.welcome_vis  = true;
+        $scope.createn_vis  = false;
+        $scope.loading_vis  = false;
+        $scope.search_vis   = false;
+        $scope.notebook_vis = false;
+        break;
+      case "create":
+        $scope.welcome_vis  = false;
+        $scope.createn_vis  = true;
+        $scope.loading_vis  = false;
+        $scope.search_vis   = false;
+        $scope.notebook_vis = false;
+        $scope.nb_name = "";
+        $scope.nb_desc = "";
+        break;
+      case "loading":
+        $scope.welcome_vis  = false;
+        $scope.createn_vis  = false;
+        $scope.loading_vis  = true;
+        $scope.search_vis   = false;
+        $scope.notebook_vis = false;
+        break;
+      case "search":
+        $scope.welcome_vis  = false;
+        $scope.createn_vis  = false;
+        $scope.loading_vis  = false;
+        $scope.search_vis   = true;
+        $scope.notebook_vis = false;
+        break;
+      case "notebook":
+        $scope.welcome_vis  = false;
+        $scope.createn_vis  = false;
+        $scope.loading_vis  = false;
+        $scope.search_vis   = false;
+        $scope.notebook_vis = true;
+        break;
     }
   };
 
@@ -68,14 +95,32 @@ app.controller('MainController', function($scope) {
 
 });
 
-ipc.on('notebook-exists', function() {
+var getScope = function() {
   var main = document.getElementById("html");
   var sc = angular.element(main).scope();
+  return sc;
+};
+
+ipc.on('notebook-exists', function() {
+  var sc = getScope();
   sc.$apply(function() {
     sc.message =  "Notebook already exists!";
   });
 });
 
 ipc.on('notebook-ready', function() {
+});
+
+ipc.on('loaded-notebooks', function (data) {
+  var sc = getScope();
+  sc.$apply(function() {
+    sc.notebooks = data;
+    sc.toggleVis('index');
+    if (sc.notebooks.length == 0) {
+      sc.message = "You can start creating your first notebook!";
+    }else {
+      sc.message = "You have a total of " + sc.notebooks.length + " notebooks!"
+    }
+  });
 });
 

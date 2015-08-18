@@ -28,7 +28,7 @@ if (db.settings.count() == 0) {
   settings = db.settings.find();
 }
 
-var blogExist = function(name) {
+var notebookExist = function(name) {
   var ix = settings.length - 1;
   var nbs = settings[ix].notebooks;
 
@@ -38,6 +38,12 @@ var blogExist = function(name) {
       return true; 
   }
   return false;
+}
+
+var getNotebooks = function() {
+  var ix = settings.length - 1;
+  var nbs = settings[ix].notebooks;
+  return nbs;
 }
 
 // Report crashes to our server.
@@ -61,9 +67,9 @@ app.on('window-all-closed', function() {
 app.on('ready', function() {
   // Create the browser window.
   mainWindow = new BrowserWindow({ width: 800, height: 600 });
+  mainWindow.loadUrl('file://' + __dirname + '/app/index.html');
 
   // and load the index.html of the app.
-  mainWindow.loadUrl('file://' + __dirname + '/app/index.html');
 
   // Open the devtools.
   // mainWindow.openDevTools();
@@ -86,7 +92,7 @@ ipc.on('create-notebook', function(event, args) {
   //ndata.link  = "#";
   ndata.click = 'openNotebook(' + args.name + ')';
 
-  if (blogExist(args.name)) {
+  if (notebookExist(args.name)) {
     console.log('Notebook exists');
     mainWindow.webContents.send('notebook-exists');
   } else {
@@ -98,6 +104,11 @@ ipc.on('create-notebook', function(event, args) {
     mainWindow.webContents.send('notebook-ready');
   } 
 
+});
+
+ipc.on('load-notebooks', function() {
+  var nbs = getNotebooks();  
+  mainWindow.webContents.send('loaded-notebooks', nbs);
 });
 
 

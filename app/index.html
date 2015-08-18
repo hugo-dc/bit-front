@@ -16,6 +16,7 @@
 
     <!-- Custom CSS -->
     <link href="css/simple-sidebar.css" rel="stylesheet">
+     <link rel="stylesheet" href="css/custom.css"/>
 
     <script src="js/jquery-1.11.3.min.js"></script>
     <script type="text/javascript" src="js/angular.min.js"></script>
@@ -38,11 +39,14 @@
             <ul class="sidebar-nav">
                 <li class="sidebar-brand">
                     <a href="#">
-                        B-Logging
+                      Beenotes
                     </a>
                 </li>
                 <li>
                 <a ng-class="{'active': isActive('index')}" href="#" ng-click="pgHome();">Home</a>
+                </li>
+                <li ng-repeat="item in notebooks">
+                <a ng-class="{active: isActive(item.id)}" href="#" ng-click="openNotebook(item.id);">{{item.name}}</a>
                 </li>
                 <li>
                 <a ng-class="{active: isActive('create')}" href="#" ng-click="pgCreateNotebook();">Create</a>
@@ -57,15 +61,33 @@
         <!-- Page Content -->
         <div id="page-content-wrapper">
             <div class="container-fluid">
+              <!-- Loading View -->
+              <div class="row" ng-show="loading_vis">
+                <div class="col-lg-12">
+                  <h3>Loading your notebooks!...</h3>
+                  <img id="loading" src="images/loading.gif"/>
+                </div>
+              </div>
+                
+              </div>
             
               <!-- Welcome View -->
                 <div class="row" ng-show="welcome_vis">
                     <div class="col-lg-12">
                         <h1>Welcome!</h1>
-                        <p>You can create your first Notebook!</p>
+                        <p>{{message}}</p>
                         <a href="#" ng-click="pgCreateNotebook()" class="btn btn-default">Create Notebook</a>
                     </div>
                 </div>
+
+             <!-- Notebook View -->
+             <div class="row" ng-show="notebook_vis">
+                <div class="col-lg-12">
+                  <h3>Under construction! :P</h3>
+                </div>
+             </div>
+               
+             </div>
 
              <!-- Create View -->
              <div class="row" ng-show="createn_vis">
