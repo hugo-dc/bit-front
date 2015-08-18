@@ -87,7 +87,6 @@ ipc.on('create-notebook', function(event, args) {
   ndata.click = 'openNotebook(' + args.name + ')';
 
   if (blogExist(args.name)) {
-    // TODO: return message using ipc 
     console.log('Notebook exists');
     mainWindow.webContents.send('notebook-exists');
   } else {
@@ -96,7 +95,7 @@ ipc.on('create-notebook', function(event, args) {
     settings[ix]["notebooks"].push(ndata);
     db.settings.save(settings[ix]);
 
-    //TODO: send message using ipc to indicate notebook is ready!
+    mainWindow.webContents.send('notebook-ready');
   } 
 
 });

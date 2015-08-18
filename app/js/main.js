@@ -76,3 +76,6 @@ ipc.on('notebook-exists', function() {
   });
 });
 
+ipc.on('notebook-ready', function() {
+});
+
