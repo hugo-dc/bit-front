@@ -11,6 +11,7 @@ app.controller('MainController', function($scope) {
   $scope.welcome_vis = false;
   $scope.createn_vis = false;
   $scope.current = "index";
+  $scope.lastNote = null;
 
   $scope.pgHome = function() {
     $scope.toggleVis('index');
@@ -108,7 +109,16 @@ ipc.on('notebook-exists', function() {
   });
 });
 
-ipc.on('notebook-ready', function() {
+ipc.on('notebook-ready', function(data) {
+ var sc = getScope();
+ var lastNB = data[data.length - 1];
+ document.getElementById('note').innerHTML = lastNB.notes[lastNB.notes.length - 1].content;
+ sc.$apply(function() {
+   sc.notebooks = data;
+   sc.toggleVis('notebook');
+   sc.current = lastNB.id;
+   sc.lastNote = lastNB.notes[lastNB.notes.length - 1];
+ });
 });
 
 ipc.on('loaded-notebooks', function (data) {

@@ -84,11 +84,26 @@ app.on('ready', function() {
 });
 
 ipc.on('create-notebook', function(event, args) {
-  console.log(args);
+  var today = new Date();
+  var d = today.getDay();
+  var m = today.getMonth() + 1;
+  var y = today.getFullYear();
+
+  if (m < 10) m = '0' + m;
+  if (d < 10) d = '0' + d;
+
+  var key = y + '-' + m + '-' + d + '-default';
+  
   ndata.id    = args.name.replace(/\s+/g, '').toLowerCase(); 
   ndata.icon  = 'fa-edit';
   ndata.name  = args.name;
   ndata.desc  = args.desc;
+  ndata.notes = [{key: key, 
+                  title: "Welcome note",
+                  content: '#Welcome\nThis is a default note, you can edit, delete, or create more notes!',
+                  prev: null,
+                  next: null
+                 }];
   //ndata.link  = "#";
   ndata.click = 'openNotebook(' + args.name + ')';
 
@@ -101,7 +116,9 @@ ipc.on('create-notebook', function(event, args) {
     settings[ix]["notebooks"].push(ndata);
     db.settings.save(settings[ix]);
 
-    mainWindow.webContents.send('notebook-ready');
+    var nbs = getNotebooks();
+
+    mainWindow.webContents.send('notebook-ready', nbs);
   } 
 
 });
