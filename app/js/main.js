@@ -112,7 +112,7 @@ ipc.on('notebook-exists', function() {
 ipc.on('notebook-ready', function(data) {
  var sc = getScope();
  var lastNB = data[data.length - 1];
- document.getElementById('note').innerHTML = lastNB.notes[lastNB.notes.length - 1].content;
+ document.getElementById('note').innerHTML = lastNB.notes[lastNB.notes.length - 1].html;
  sc.$apply(function() {
    sc.notebooks = data;
    sc.toggleVis('notebook');

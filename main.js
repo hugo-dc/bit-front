@@ -46,6 +46,18 @@ var getNotebooks = function() {
   return nbs;
 }
 
+var getHtml = function(markdown) {
+    var md = require('github-markdown-preview');
+    var result = null;
+    md(markdown, function(err, html) {
+	result = html;
+	console.log(err);
+    });
+    console.log(result);
+    console.log("Hello?");
+  return result;
+}
+
 // Report crashes to our server.
 require('crash-reporter').start();
 
@@ -88,6 +100,8 @@ ipc.on('create-notebook', function(event, args) {
   var d = today.getDay();
   var m = today.getMonth() + 1;
   var y = today.getFullYear();
+  var defmd = '# Welcome\nThis is a default note, you can edit, delete, or create more notes!\nBeenotes uses Markdown to edit each note\n Using Markdown you can:\n* Create bullets\n```python\nx = 10\nprint "Hello world!"o```';
+  var defhtml = getHtml(defmd);
 
   if (m < 10) m = '0' + m;
   if (d < 10) d = '0' + d;
@@ -100,7 +114,8 @@ ipc.on('create-notebook', function(event, args) {
   ndata.desc  = args.desc;
   ndata.notes = [{key: key, 
                   title: "Welcome note",
-                  content: '#Welcome\nThis is a default note, you can edit, delete, or create more notes!',
+                  content: defmd, 
+                  html:    defhtml, 
                   prev: null,
                   next: null
                  }];
