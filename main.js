@@ -46,16 +46,33 @@ var getNotebooks = function() {
   return nbs;
 }
 
+var getDMY = function() {
+    var today = new Date();
+    var d = today.getDate();
+    var m = today.getMonth() + 1;
+    var y = today.getFullYear();
+    console.log(d);
+    if (d < 10)	d = '0' + d.toString();
+    if (m < 10) m = '0' + m.toString();
+
+    return [d,m,y];
+}
 var getHtml = function(markdown) {
-    var md = require('github-markdown-preview');
     var result = null;
-    md(markdown, function(err, html) {
-	result = html;
-	console.log(err);
-    });
-    console.log(result);
-    console.log("Hello?");
-  return result;
+    var fs = require('fs');
+    var dmy = getDMY();
+    var child_process = require('child_process');
+
+    d = dmy[0];
+    m = dmy[1];
+    y = dmy[2];
+    var fname = y + '-' + m + '-' + d + '-convert';
+    
+    fs.writeFileSync('./bin/posts/' + fname + '.md', markdown);
+    var ch = child_process.spawnSync(__dirname + '\\bin\\site', ['build'], {cwd: __dirname + '\\bin'});
+    var html = fs.readFileSync('./bin/_site/posts/' + fname + '.html');
+    console.log(html.toString());
+    return html.toString();
 }
 
 // Report crashes to our server.
@@ -96,17 +113,14 @@ app.on('ready', function() {
 });
 
 ipc.on('create-notebook', function(event, args) {
-  var today = new Date();
-  var d = today.getDay();
-  var m = today.getMonth() + 1;
-  var y = today.getFullYear();
-  var defmd = '# Welcome\nThis is a default note, you can edit, delete, or create more notes!\nBeenotes uses Markdown to edit each note\n Using Markdown you can:\n* Create bullets\n```python\nx = 10\nprint "Hello world!"o```';
-  var defhtml = getHtml(defmd);
+    var dmy = getDMY();
+    var d = dmy[0];
+    var m = dmy[1];
+    var y = dmy[2];
+    var defmd = '# Welcome\n\nThis is a default note, you can edit, delete, or create more notes!\n\nBeenotes uses Markdown to edit each note\n\nUsing Markdown you can:\n\n* Create bullets\n\n```python\nx = 10\nprint "Hello world!"\n```';
+    var defhtml = getHtml(defmd);
 
-  if (m < 10) m = '0' + m;
-  if (d < 10) d = '0' + d;
-
-  var key = y + '-' + m + '-' + d + '-default';
+    var key = y + '-' + m + '-' + d + '-default';
   
   ndata.id    = args.name.replace(/\s+/g, '').toLowerCase(); 
   ndata.icon  = 'fa-edit';
