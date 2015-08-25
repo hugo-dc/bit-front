@@ -1,3 +1,19 @@
 #loading {
   width: 30px;
 }
+
+/* Source code highlight */
+.sourceCode span.co { color: #7F7B80; font-style: italic; }
+.sourceCode span.kw { color: #005FF5;  }
+.sourceCode span.dt { color: #902000; }
+.sourceCode span.dv { color: #40a070; }
+.sourceCode span.bn { color: #40a070; }
+.sourceCode span.fl { color: #40a070; }
+.sourceCode span.ch { color: #4070a0; }
+.sourceCode span.st { color: #4070a0; }
+.sourceCode span.ot { color: #007020; }
+.sourceCode span.al { color: red; font-weight: bold; }
+.sourceCode span.fu { color: #06287e; }
+.sourceCode span.re { }
+.sourceCode span.er { color: red; font-weight: bold; }
+
