@@ -25,10 +25,6 @@ app.controller('MainController', function($scope) {
     $scope.toggleVis('search');
   };
 
-  $scope.openNotebook = function(name) {
-    $scope.toggleVis("notebook");
-    $scope.current = name;
-  };
 
   $scope.toggleVis = function(name) {
     $scope.current = name;
@@ -73,17 +69,24 @@ app.controller('MainController', function($scope) {
     }
   };
 
-  $scope.createNotebook = function (name, desc) {
-    var args = { "name": name,
-                 "desc": desc };
+    $scope.createNotebook = function (name, desc) {
+	$scope.toggleVis("loading");
+	var args = { "name": name,
+                     "desc": desc };
 
-    if (name == "" || desc == "" || name == null || desc == null)
-    {
-      $scope.message = "Provide both values";
-    } else {
-      ipc.send('create-notebook', args);
-    }
-  };
+	if (name == "" || desc == "" || name == null || desc == null)
+	{
+	    $scope.message = "Provide both values";
+	} else {
+	    ipc.send('create-notebook', args);
+	}
+    };
+    
+    $scope.openNotebook = function(nb_id) {
+	$scope.toggleVis("loading");
+	var args = { "id" : nb_id };
+	ipc.send('open-notebook', args);
+    };
 
   $scope.isActive = function(page) {
     if (page == $scope.current)
@@ -103,18 +106,19 @@ var getScope = function() {
 };
 
 ipc.on('notebook-exists', function() {
-  var sc = getScope();
-  sc.$apply(function() {
-    sc.message =  "Notebook already exists!";
-  });
+    var sc = getScope();
+    sc.$apply(function() {
+	sc.toggleVis("create");
+	sc.message =  "Notebook already exists!";
+    });
 });
 
 ipc.on('notebook-ready', function(data) {
  var sc = getScope();
- var lastNB = data[data.length - 1];
+ var lastNB = data.nbs[data.index];
  document.getElementById('note').innerHTML = lastNB.notes[lastNB.notes.length - 1].html;
  sc.$apply(function() {
-   sc.notebooks = data;
+   sc.notebooks = data.nbs;
    sc.toggleVis('notebook');
    sc.current = lastNB.id;
    sc.lastNote = lastNB.notes[lastNB.notes.length - 1];

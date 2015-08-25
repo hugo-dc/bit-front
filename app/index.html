@@ -20,7 +20,7 @@
 
     <script src="js/jquery-1.11.3.min.js"></script>
     <script type="text/javascript" src="js/angular.min.js"></script>
-    <script src="js/main.js"></script>
+    <script src="js/index.js"></script>
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -46,7 +46,7 @@
                 <a ng-class="{'active': isActive('index')}" href="#" ng-click="pgHome();">Home</a>
                 </li>
                 <li ng-repeat="item in notebooks">
-                <a ng-class="{active: isActive(item.id)}" href="#" ng-click="openNotebook(item.id);">{{item.name}}</a>
+                  <a ng-class="{active: isActive(item.id)}" href="#" ng-click="openNotebook(item.id);">{{item.name}}</a>
                 </li>
                 <li>
                 <a ng-class="{active: isActive('create')}" href="#" ng-click="pgCreateNotebook();">Create</a>
@@ -64,7 +64,7 @@
 				<!-- Loading View -->
 				<div class="row" ng-show="loading_vis">
 					<div class="col-lg-12">
-						<h3>Loading your notebooks!...</h3>
+						<h3>{{message}}</h3>
 						<img id="loading" src="images/loading.gif"/>
 					</div>
 				</div>
