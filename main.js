@@ -137,7 +137,7 @@ ipc.on('create-notebook', function(event, args) {
     var d = dmy[0];
     var m = dmy[1];
     var y = dmy[2];
-    var defmd = '# Welcome\n\nThis is a default note, you can edit, delete, or create more notes!\n\nBeenotes uses Markdown to edit each note\n\nUsing Markdown you can:\n\n* Create bullets\n\n```python\nx = 10\nprint "Hello world!"\n```';
+    var defmd = '# Welcome\n\nThis is a default note, you can edit, delete, or create more notes!\n\nBeenotes uses Markdown to edit each note\n\nUsing Markdown you can:\n\n* Create bullets\n\n```abap\nREPORT zhello_world.\n\nWRITE: \'Hello World\'. " This is a halfline comment\n```';
     var defhtml = getHtml(defmd);
 
     var key = y + '-' + m + '-' + d + '-default';

@@ -2,6 +2,15 @@
   width: 30px;
 }
 
+#editor {
+    width: 100%;
+    height: 80vh;
+    resize: none;
+    /* font-family: "Courier New", Courier, monospace; */
+    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+    font-size: 15px;
+    border: 0px solid #ccc;
+}
 
 /* Source code highlight */
 .sourceCode span.co { color: #7F7B80; font-style: italic; }
