@@ -44,16 +44,31 @@
                     </a>
                 </li>
                 <li>
-                <a ng-class="{'active': isActive('index')}" href="#" ng-click="pgHome();">Home</a>
+                <a ng-class="{'active': isActive('index')}" href="#" ng-click="pgHome();">
+		  <span class="fa fa-home fa-1g"></span>
+		  Home
+		</a>
                 </li>
                 <li ng-repeat="item in notebooks">
-                  <a ng-class="{active: isActive(item.id)}" href="#" ng-click="openNotebook(item.id);">{{item.name}}</a>
+                  <a ng-class="{active: isActive(item.id)}" href="#"
+		     ng-click="openNotebook(item.id);">
+		    <span class="fa fa-file-text-o fa-1g"></span>
+		    {{item.name}}
+		  </a>
                 </li>
                 <li>
-                <a ng-class="{active: isActive('create')}" href="#" ng-click="pgCreateNotebook();">Create</a>
+                  <a ng-class="{active: isActive('create')}" href="#"
+		     ng-click="pgCreateNotebook();">
+		    <span class="fa fa-plus fa-1g"></span>
+		    Create
+		  </a>
                 </li>
                 <li>
-                <a ng-class="{active: isActive('search')}" href="#" ng-click="pgSearchNotebook();">Search</a>
+                <a ng-class="{active: isActive('search')}" href="#"
+		   ng-click="pgSearchNotebook();">
+		  <span class="fa fa-search fa-1g"></span>
+		  Search
+		</a>
                 </li>
             </ul>
         </div>
@@ -80,7 +95,7 @@
                 </div>
 
 		<!-- Notebook View -->
-		<div class="row" ng-show="notebook_vis">
+		<div class="row nbmenu" ng-show="notebook_vis">
 		  <div class="col-lg-12">
 		    <div class="btn-group" role="group" aria-label="...">
 		      <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-arrow-left" aria-hiden="true"></span> Previous</button>
@@ -100,7 +115,7 @@
 		  <hr>
 		</div>
 
-		<div class="row" ng-show="notebook_vis">
+		<div class="row nbvis" ng-show="notebook_vis">
 		  <div class="col-lg-12">
 		    <h1>{{lastNote.title}}</h1>
 		    <div id="note"> </div>
