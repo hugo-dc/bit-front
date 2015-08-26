@@ -6,12 +6,14 @@ var ipc = require('ipc');
 ipc.send('load-notebooks');
 
 app.controller('MainController', function($scope) {
-  $scope.title = "Personal Notes";
-  $scope.loading_vis = true;
-  $scope.welcome_vis = false;
-  $scope.createn_vis = false;
-  $scope.current = "index";
-  $scope.lastNote = null;
+    $scope.title = "Personal Notes";
+    $scope.loading_vis = true;
+    $scope.welcome_vis = false;
+    $scope.createn_vis = false;
+    $scope.current = "index";
+    $scope.lastNote = null;
+    $scope.markdown = "";
+    $scope.nbook_ix = null;
 
   $scope.pgHome = function() {
     $scope.toggleVis('index');
@@ -35,6 +37,7 @@ app.controller('MainController', function($scope) {
         $scope.loading_vis  = false;
         $scope.search_vis   = false;
         $scope.notebook_vis = false;
+	$scope.edit_vis     = false;
         break;
       case "create":
         $scope.welcome_vis  = false;
@@ -42,6 +45,7 @@ app.controller('MainController', function($scope) {
         $scope.loading_vis  = false;
         $scope.search_vis   = false;
         $scope.notebook_vis = false;
+	$scope.edit_vis     = false;
         $scope.nb_name = "";
         $scope.nb_desc = "";
         break;
@@ -51,6 +55,7 @@ app.controller('MainController', function($scope) {
         $scope.loading_vis  = true;
         $scope.search_vis   = false;
         $scope.notebook_vis = false;
+	$scope.edit_vis     = false;
         break;
       case "search":
         $scope.welcome_vis  = false;
@@ -58,6 +63,7 @@ app.controller('MainController', function($scope) {
         $scope.loading_vis  = false;
         $scope.search_vis   = true;
         $scope.notebook_vis = false;
+	$scope.edit_vis     = false;
         break;
       case "notebook":
         $scope.welcome_vis  = false;
@@ -65,7 +71,16 @@ app.controller('MainController', function($scope) {
         $scope.loading_vis  = false;
         $scope.search_vis   = false;
         $scope.notebook_vis = true;
+	$scope.edit_vis     = false;
         break;
+    case "edit":
+	$scope.welcome_vis  = false;
+        $scope.createn_vis  = false;
+        $scope.loading_vis  = false;
+        $scope.search_vis   = false;
+        $scope.notebook_vis = false;
+	$scope.edit_vis     = true;
+	break;
     }
   };
 
@@ -97,6 +112,28 @@ app.controller('MainController', function($scope) {
     }
   };
 
+    // Notes menu
+    $scope.mnEdit = function() {
+	var curr = $scope.current;
+	$scope.toggleVis('edit');
+	$scope.current = curr;
+	
+    }
+
+    $scope.mnViewHtml = function() {
+	console.log("mnViewHtml\n==========\n");
+	var curr = $scope.current;
+	console.log("current: " + $scope.current);
+	var args = { "nbix" : $scope.nbook_ix, "ntix" : $scope.note_ix, "content" : $scope.markdown };
+	if ($scope.markdown != $scope.lastNote.content){
+	    console.log("Markdown changed!");
+	    $scope.toggleVis('loading');
+	    $scope.current = curr;
+	    console.log("Calling Update Backend proces...");
+	    console.log("Using args: nbix = " + $scope.nbook_ix + " note_ix = " + $scope.note_ix);
+	    ipc.send('update-note', args);
+	}
+    }
 });
 
 var getScope = function() {
@@ -114,14 +151,17 @@ ipc.on('notebook-exists', function() {
 });
 
 ipc.on('notebook-ready', function(data) {
- var sc = getScope();
- var lastNB = data.nbs[data.index];
- document.getElementById('note').innerHTML = lastNB.notes[lastNB.notes.length - 1].html;
- sc.$apply(function() {
-   sc.notebooks = data.nbs;
-   sc.toggleVis('notebook');
-   sc.current = lastNB.id;
-   sc.lastNote = lastNB.notes[lastNB.notes.length - 1];
+    var sc = getScope();
+    var lastNB = data.nbs[data.nb_ix];
+    document.getElementById('note').innerHTML = lastNB.notes[data.nt_ix].html;
+    sc.$apply(function() {
+	sc.notebooks = data.nbs;
+	sc.toggleVis('notebook');
+	sc.current = lastNB.id;
+	sc.markdown = lastNB.notes[data.nt_ix].content;
+	sc.lastNote = lastNB.notes[data.nt_ix];
+	sc.nbook_ix = data.nb_ix;
+	sc.note_ix  = data.nt_ix;
  });
 });
 

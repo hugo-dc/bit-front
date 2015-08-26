@@ -58,11 +58,17 @@ var getNotebookIndex = function(nb_id) {
     }
 }
 
+var getNotebookByIx = function(nb_ix) {
+    var ix = settings.length - 1;
+    var nbs = settings[ix].notebooks;
+    return nbs[nb_ix];
+}
+
     
 var getNotebooks = function() {
-  var ix = settings.length - 1;
-  var nbs = settings[ix].notebooks;
-  return nbs;
+    var ix = settings.length - 1;
+    var nbs = settings[ix].notebooks;
+    return nbs;
 }
 
 var getDMY = function() {
@@ -70,7 +76,7 @@ var getDMY = function() {
     var d = today.getDate();
     var m = today.getMonth() + 1;
     var y = today.getFullYear();
-    console.log(d);
+
     if (d < 10)	d = '0' + d.toString();
     if (m < 10) m = '0' + m.toString();
 
@@ -90,7 +96,7 @@ var getHtml = function(markdown) {
     fs.writeFileSync('./bin/posts/' + fname + '.md', markdown);
     var ch = child_process.spawnSync(__dirname + '\\bin\\site', ['build'], {cwd: __dirname + '\\bin'});
     var html = fs.readFileSync('./bin/_site/posts/' + fname + '.html');
-    console.log(html.toString());
+    // console.log(html.toString());
     return html.toString();
 }
 
@@ -157,18 +163,19 @@ ipc.on('create-notebook', function(event, args) {
   ndata.click = 'openNotebook(' + args.name + ')';
 
   if (notebookExist(args.name)) {
-    console.log('Notebook exists');
-    mainWindow.webContents.send('notebook-exists');
+      mainWindow.webContents.send('notebook-exists');
   } else {
-    var ix = settings.length - 1;
-    settings = db.settings.find();
-    settings[ix]["notebooks"].push(ndata);
-    db.settings.save(settings[ix]);
+      var ix = settings.length - 1;
+      settings = db.settings.find();
 
-      var nbs = getNotebooks();
+      settings[ix]["notebooks"].push(ndata);
+      db.settings.save(settings[ix]);
+
+      var nbs = settings[ix]["notebooks"];
       var ix  = nbs.length - 1;
+      var ntix = nbs[ix].notes.length - 1;
 
-      mainWindow.webContents.send('notebook-ready', { "nbs" : nbs , "index" : ix } );
+      mainWindow.webContents.send('notebook-ready', { "nbs" : nbs , "nb_ix" : ix, "nt_ix" : ntix } );
   } 
 
 });
@@ -182,10 +189,34 @@ ipc.on('load-notebooks', function() {
 // Load specific notebook
 ipc.on('open-notebook', function(event, args) {
     var ix = getNotebookIndex(args.id);
-    console.log(ix);
     var nbs = getNotebooks();
+    var ntix = nbs[ix].notes.length - 1;
 
-    mainWindow.webContents.send('notebook-ready', {"nbs": nbs, "index": ix });
+    mainWindow.webContents.send('notebook-ready', {"nbs": nbs, "nb_ix": ix, "nt_ix": ntix });
+});
+
+// Update note
+ipc.on('update-note', function(event, args) {
+    console.log("Entering `update-note` backend process");
+    console.log("======================================");
+    var nb = getNotebookByIx(args.nbix);
+    var note = nb.notes[args.ntix];
+    console.log("Received:\n\tnbix = " + args.nbix + "\n\tntix = " + args.ntix);
+
+    var ix = settings.length - 1;
+    var html = getHtml(args.content);
+
+    console.log("Updating note:");
+    console.log(JSON.stringify(nb.notes[args.ntix]));
+    nb.notes[args.ntix].content = args.content;
+    nb.notes[args.ntix].html    = html;
+    
+    settings = db.settings.find();
+    console.log("Saving in database...");
+    settings[ix]["notebooks"][args.nbix] = nb;
+    db.settings.save(settings[ix]);
+
+    mainWindow.webContents.send('notebook-ready', {"nbs" : settings[ix].notebooks , "nb_ix" : args.nbix, "nt_ix" : args.ntix });
 });
 
 
