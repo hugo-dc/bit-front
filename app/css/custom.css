@@ -7,7 +7,8 @@
     height: 80vh;
     resize: none;
     /* font-family: "Courier New", Courier, monospace; */
-    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+    /* font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif; */
+    font-family: "Lucida Console", Monaco, monospace;
     font-size: 15px;
     border: 0px solid #ccc;
 }

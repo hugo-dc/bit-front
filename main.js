@@ -94,9 +94,9 @@ var getHtml = function(markdown) {
     var fname = y + '-' + m + '-' + d + '-convert';
     
     fs.writeFileSync('./bin/posts/' + fname + '.md', markdown);
-    var ch = child_process.spawnSync(__dirname + '\\bin\\site', ['build'], {cwd: __dirname + '\\bin'});
+    var ch = child_process.spawnSync(__dirname + '\\bin\\build.bat', [], {cwd: __dirname + '\\bin'});
     var html = fs.readFileSync('./bin/_site/posts/' + fname + '.html');
-    // console.log(html.toString());
+    console.log(html.toString());
     return html.toString();
 }
 
@@ -143,7 +143,7 @@ ipc.on('create-notebook', function(event, args) {
     var d = dmy[0];
     var m = dmy[1];
     var y = dmy[2];
-    var defmd = '# Welcome\n\nThis is a default note, you can edit, delete, or create more notes!\n\nBeenotes uses Markdown to edit each note\n\nUsing Markdown you can:\n\n* Create bullets\n\n```abap\nREPORT zhello_world.\n\nWRITE: \'Hello World\'. " This is a halfline comment\n```';
+    var defmd = "Welcome!\n========\n\n\nHi!, Welcome to BeeLog, your personal notebook!.\n\nYou write your personal/job blog using BeeLog and Markdown Syntax!. Here is a simple explanation of the Markdown Syntax:\n\nMarkdown Syntax\n===============\n\nMarkdown Syntax is a way to write text that is readible for people but that it\ncan also be converted to HTML.\n\nLet's go through a series of examples on how to write Markdown Syntax.\n\n\nExamples:\n\n------------------\n\nThe following markdown text:\n\n```markdown\nYou can write Headers\n=====================\n```\n\n\nProduces the following HTML:\n\nYou can write Headers\n=====================\n\n\n------------------\n\nMarkdown text:\n\n```markdown\nYou can write subheaders\n------------------------\n```\n\nHTML:\n\nYou can write subheaders\n------------------------\n\n------------------\n\nMarkdown:\n\n```markdown\n**You can write bold text**\n```\n\nHTML:\n\n**You can write bold text**\n\n------------------\n\nMarkdown:\n\n```markdown\n*You can write text in italics*\n```\n\n\nHTML:\n\n*You can write text in italics*\n\n------------------\n\nMarkdown:\n\n```markdown\n1. Item 1 \n1. Item 2\n1. Item 3\n```\n\nHTML:\n\n\n1. Item 1 \n1. Item 2\n1. Item 3\n\n-------------------\n\nMarkdown:\n\n```markdown\n* Item 1\n* Item 2\n* Item 3\n```\n\nHTML: \n\n* Item 1\n* Item 2\n* Item 3\n\n--------------------\n\nMarkdown:\n\n```markdown\n[This is a link to Google](http://www.google.com/)\n```\n\nHTML:\n\n[This is a link to Google](http://www.google.com/)\n\n\n------------------\n\nMarkdown:\n\n```markdown\n![image](http://fc00.deviantart.net/fs71/f/2011/129/6/c/dptux_by_teliok-d3fyij5.png)\n```\n\nHTML:\n\n![image](http://fc00.deviantart.net/fs71/f/2011/129/6/c/dptux_by_teliok-d3fyij5.png)\n\n-----------------\n\nMarkdown:\n\n```markdown\n\n ```abap\nREPORT znumbers.\n\ndata:\nmy_int type i.\n\nparameters:\nmy_hex type x.\n\nmy_int = my_hex.\n\nwrite:/ 'HEX: ', my_hex, /'INT: ', my_int.\n ```\n\n```\n\nHTML:\n\n```abap\nREPORT znumbers.\n\ndata:\nmy_int type i.\n\nparameters:\nmy_hex type x.\n\nmy_int = my_hex.\n\nwrite:/ 'HEX: ', my_hex, /'INT: ', my_int.\n```\n\n-----------------\n\nMarkdown\n\n```markdown\n ```javascript\n var a = 0;\n var b = 1;\n\n var c = a + b;\n\n alert(c);\n\n\n ```\n```\n\n\n```javascript\nvar a = 0;\nvar b = 1;\n\nvar c = a + b;\n\nalert(c);\n```\n";
     var defhtml = getHtml(defmd);
 
     var key = y + '-' + m + '-' + d + '-default';
@@ -153,7 +153,7 @@ ipc.on('create-notebook', function(event, args) {
   ndata.name  = args.name;
   ndata.desc  = args.desc;
   ndata.notes = [{key: key, 
-                  title: "Welcome note",
+                  title: "Your First Post",
                   content: defmd, 
                   html:    defhtml, 
                   prev: null,

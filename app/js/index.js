@@ -132,6 +132,10 @@ app.controller('MainController', function($scope) {
 	    console.log("Calling Update Backend proces...");
 	    console.log("Using args: nbix = " + $scope.nbook_ix + " note_ix = " + $scope.note_ix);
 	    ipc.send('update-note', args);
+	}else {
+	    console.log("Markdown not changed!");
+	    $scope.toggleVis('notebook');
+	    $scope.current = curr;
 	}
     }
 });
