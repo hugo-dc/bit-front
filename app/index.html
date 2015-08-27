@@ -123,7 +123,7 @@
 		</div>
 
 		<div class="row" ng-show="edit_vis">
-		  <div class="col-lg-12">
+		  <div class="col-lg-l6">
 		    <div class="btn-group" role="group" aria-label="...">
 		      <button type="button" class="btn btn-default" ng-click="mnViewHtml()"><span class="glyphicon glyphicon-eye-open"></span></button>
 		      <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-header"></span></button>
@@ -131,13 +131,17 @@
 		    </div>
 		  </div>
 		</div>
-		<div class="row" ng-show="edit_vis">
+		<div class="row nt_title" ng-show="edit_vis">
+		  <div class="col-lg-l2">
+		    <input type="text" class="form-control"
+			   name="nt_title" ng-model="lastNote.title">
+		  </div>
+		</div>
+		<div class="row nt_content" ng-show="edit_vis">
 		  <div class="col-lg-12">
 		    <textarea name="editor" id="editor" ng-model="markdown"></textarea>
 		  </div>
 		</div>
-															    
-             
 				<!-- Create View -->
 				<div class="row" ng-show="createn_vis">
 					<div class="col-md-6">
