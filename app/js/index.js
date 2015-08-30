@@ -14,6 +14,7 @@ app.controller('MainController', function($scope) {
     $scope.lastNote = null;
     $scope.markdown = "";
     $scope.nbook_ix = null;
+    $scope.nbtitle = "";
 
   $scope.pgHome = function() {
     $scope.toggleVis('index');
@@ -124,9 +125,27 @@ app.controller('MainController', function($scope) {
 	console.log("mnViewHtml\n==========\n");
 	var curr = $scope.current;
 	console.log("current: " + $scope.current);
-	var args = { "nbix" : $scope.nbook_ix, "ntix" : $scope.note_ix, "content" : $scope.markdown };
-	if ($scope.markdown != $scope.lastNote.content){
+	
+	var args = { "nbix"    : $scope.nbook_ix,
+		     "ntix"    : $scope.note_ix,
+		     "content" : null,
+		     "title"   : null
+		   };
+	var change = false;
+	
+	if ($scope.markdown != $scope.lastNote.content) {
+	    args.content = $scope.markdown;
 	    console.log("Markdown changed!");
+	    change = true;
+	}
+	if ($scope.nbtitle != $scope.lastNote.title) {
+	    args.title = $scope.nbtitle;
+	    console.log(args.nbtitle);
+	    console.log("Title changed!");
+	    change = true;
+	}
+	
+	if (change){
 	    $scope.toggleVis('loading');
 	    $scope.current = curr;
 	    console.log("Calling Update Backend proces...");
@@ -163,6 +182,7 @@ ipc.on('notebook-ready', function(data) {
 	sc.toggleVis('notebook');
 	sc.current = lastNB.id;
 	sc.markdown = lastNB.notes[data.nt_ix].content;
+	sc.nbtitle  = lastNB.notes[data.nt_ix].title;
 	sc.lastNote = lastNB.notes[data.nt_ix];
 	sc.nbook_ix = data.nb_ix;
 	sc.note_ix  = data.nt_ix;

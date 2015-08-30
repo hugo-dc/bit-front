@@ -126,7 +126,8 @@ app.on('ready', function() {
   // and load the index.html of the app.
 
   // Open the devtools.
-  // mainWindow.openDevTools();
+    // mainWindow.openDevTools();
+    mainWindow.maximize();
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function() {
@@ -204,13 +205,21 @@ ipc.on('update-note', function(event, args) {
     console.log("Received:\n\tnbix = " + args.nbix + "\n\tntix = " + args.ntix);
 
     var ix = settings.length - 1;
-    var html = getHtml(args.content);
 
-    console.log("Updating note:");
-    console.log(JSON.stringify(nb.notes[args.ntix]));
-    nb.notes[args.ntix].content = args.content;
-    nb.notes[args.ntix].html    = html;
-    
+    if (args.content) {
+	var html = getHtml(args.content);
+	console.log("Updating note content:");
+	console.log(JSON.stringify(nb.notes[args.ntix]));
+	nb.notes[args.ntix].content = args.content;
+	nb.notes[args.ntix].html    = html;
+    }
+    if (args.title) {
+	console.log("Updating note title:");
+	console.log("Using " + args.title);
+	nb.notes[args.ntix].title   = args.title;
+	console.log(JSON.stringify(nb.notes[args.ntix]));	
+    }
+
     settings = db.settings.find();
     console.log("Saving in database...");
     settings[ix]["notebooks"][args.nbix] = nb;
