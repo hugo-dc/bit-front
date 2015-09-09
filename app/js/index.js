@@ -132,7 +132,19 @@ app.controller('MainController', function($scope) {
 	    return false;
 	}
     };
-    
+
+    $scope.isFirstNote = function() {
+	if ($scope.note_ix == 0)
+	    return true;
+	return false;
+    };
+
+    $scope.isLastNote = function ()
+    {
+	if ($scope.note_ix == ($scope.notebooks[$scope.nbook_ix].notes.length - 1))
+	    return true;
+	return false;
+    };
 
     // Notes menu
     $scope.callNote = function(nb,ix) {
