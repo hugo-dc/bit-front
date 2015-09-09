@@ -20,9 +20,10 @@ app.controller('MainController', function($scope) {
     $scope.month = null;
     $scope.day = null;
 
-  $scope.pgHome = function() {
-    $scope.toggleVis('index');
-  };
+    $scope.pgHome = function() {
+	$scope.message = "";
+	$scope.toggleVis('index');
+    };
 
   $scope.pgCreateNotebook = function() {
     $scope.toggleVis('create');
@@ -158,8 +159,8 @@ app.controller('MainController', function($scope) {
 	$scope.month    = nb.notes[ix].month;
 	$scope.day      = nb.notes[ix].day;
 	$scope.note_ix  = ix;
-	
 	document.getElementById('note').innerHTML = nb.notes[ix].html;
+	$scope.message ="";
     }
     
     $scope.mnPrev = function() {
@@ -183,6 +184,7 @@ app.controller('MainController', function($scope) {
 	$scope.toggleVis('edit');
 
 	$scope.current = curr;
+	$scope.message = "";
     };
     
     $scope.mnEdit = function() {
@@ -190,7 +192,7 @@ app.controller('MainController', function($scope) {
 	$scope.action = "update_note";
 	$scope.toggleVis('edit');
 	$scope.current = curr;
-	
+	$scope.message = "";
     };
 
     // Thi function is used to CREATE or UPDATE a note
@@ -201,6 +203,18 @@ app.controller('MainController', function($scope) {
 	console.log("action: " + $scope.action);
 	
 	if ($scope.action == "create_note") {
+	    if ($scope.nbtitle == "" && $scope.markdown == "") {
+		$scope.message = "Provide a note title and content!";
+		return;
+	    }
+	    if ( $scope.nbtitle == "") {
+		$scope.message = "Provide a valid title!";
+		return;
+	    }
+	    if ($scope.markdown == "") {
+		$scope.message = "Note is empty!";
+		return;
+	    }
 	    console.log("Create note...");
 	    var args = { "title" : $scope.nbtitle,
 			 "content" : $scope.markdown,
