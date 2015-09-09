@@ -63,13 +63,6 @@
 		    Create
 		  </a>
                 </li>
-                <li>
-                <a ng-class="{active: isActive('search')}" href="#"
-		   ng-click="pgSearchNotebook();">
-		  <span class="fa fa-search fa-1g"></span>
-		  Search
-		</a>
-                </li>
             </ul>
         </div>
         <!-- /#sidebar-wrapper -->
@@ -96,7 +89,7 @@
 
 	    <!-- Notebook View -->
 	    <div class="row nbmenu" ng-show="notebook_vis">
-	      <div class="col-lg-12">
+	      <div class="col-lg-7">
 		<div class="btn-group" role="group" aria-label="...">
 		  <button type="button" ng-class="{'btn':
 						  true,'btn-default' :
@@ -109,11 +102,21 @@
 		  <button type="button" ng-class="{'btn' : true,
 						  'btn-default': true, 
 						  'disabled': isLastNote()}"
-			  ng-click="mnNext()"><span class="glyphicon glyphicon-arrow-right"></span> Next</button>
-		</div>
-	      </div>
-	      <hr>
-	    </div>
+			  ng-click="mnNext()">
+		    <span class="glyphicon glyphicon-arrow-right"></span>
+		    Next
+		  </button>
+		</div> <!-- btn-group -->
+	      </div> <!-- col-lg-6 -->
+	      <div class="col-lg-4">
+		<div class="input-group">
+		  <input type="text" class="form-control" placeholder="Search for...">
+		  <span class="input-group-btn">
+		    <button class="btn btn-default" type="button">Go!</button>
+		  </span>
+		</div><!-- /input-group -->
+	      </div><!-- /.col-lg-6 -->
+	    </div> <!-- row -->
 
 	    <div class="row nbvis" ng-show="notebook_vis">
 	      <div class="col-lg-12">
@@ -177,23 +180,9 @@
 		<!--</form>-->
 	      </div>
 	    </div>
-		  
-				<!-- Search View -->
-                <div class="row" ng-show="search_vis">
-                    <div class="col-lg-12">
-                        <h1>Search your Notebook!</h1>
-                        <p>Find your Notebook!</p>
-						
-						<fieldset>
-						  <div class="form-group">
-							<div class="col-lg-10">
-							  <input style="width:300px;height:30px" type="text" class="form-control" name="nb_search" placeholder="Search" ng-model="nb_search"> <img src="images/iconSearch.png" ng-click="searchNotebook(nb_search)" alt="Search"/>
-							</div>
-						  </div>
-						</fieldset>
-                    </div>
-                </div>
+              
             </div>
+          </div>
         </div>
         <!-- /#page-content-wrapper -->
 
