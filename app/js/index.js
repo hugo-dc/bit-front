@@ -1,4 +1,3 @@
-
 var app = angular.module('Beenotes', []);
 
 var ipc = require('ipc');
@@ -36,74 +35,26 @@ app.controller('MainController', function($scope) {
 
     $scope.toggleVis = function(name) {
 	$scope.current = name;
-	// TODO: Fix this ugly code v
-	switch(name) {
-	case "index":
-            $scope.welcome_vis  = true;
-            $scope.createn_vis  = false;
-            $scope.loading_vis  = false;
-            $scope.search_vis   = false;
-            $scope.notebook_vis = false;
-	    $scope.edit_vis     = false;
-	    $scope.ntcreate_vis = false;
-            break;
-	case "create":
-            $scope.welcome_vis  = false;
-            $scope.createn_vis  = true;
-            $scope.loading_vis  = false;
-            $scope.search_vis   = false;
-            $scope.notebook_vis = false;
-	    $scope.edit_vis     = false;
-	    $scope.ntcreate_vis = false;
+	
+        $scope.welcome_vis  = false;
+        $scope.createn_vis  = false;
+        $scope.loading_vis  = false;
+        $scope.search_vis   = false;
+        $scope.notebook_vis = false;
+	$scope.edit_vis     = false;
+	$scope.ntcreate_vis = false;
+
+	if (name == "index")  $scope.welcome_vis = true;
+        if (name == "create") {
+	    $scope.createn_vis  = true;
             $scope.nb_name = "";
             $scope.nb_desc = "";
-            break;
-	case "loading":
-            $scope.welcome_vis  = false;
-            $scope.createn_vis  = false;
-            $scope.loading_vis  = true;
-            $scope.search_vis   = false;
-            $scope.notebook_vis = false;
-	    $scope.edit_vis     = false;
-	    $scope.ntcreate_vis = false;
-            break;
-	case "search":
-            $scope.welcome_vis  = false;
-            $scope.createn_vis  = false;
-            $scope.loading_vis  = false;
-            $scope.search_vis   = true;
-            $scope.notebook_vis = false;
-	    $scope.edit_vis     = false;
-	    $scope.ntcreate_vis = false;
-            break;
-	case "notebook":
-            $scope.welcome_vis  = false;
-            $scope.createn_vis  = false;
-            $scope.loading_vis  = false;
-            $scope.search_vis   = false;
-            $scope.notebook_vis = true;
-	    $scope.edit_vis     = false;
-	    $scope.ntcreate_vis = false;
-            break;
-	case "edit":
-	    $scope.welcome_vis  = false;
-            $scope.createn_vis  = false;
-            $scope.loading_vis  = false;
-            $scope.search_vis   = false;
-            $scope.notebook_vis = false;
-	    $scope.edit_vis     = true;
-	    $scope.ntcreate_vis = false;
-	    break;
-	case "ntcreate":
-	    $scope.welcome_vis  = false;
-            $scope.createn_vis  = false;
-            $scope.loading_vis  = false;
-            $scope.search_vis   = false;
-            $scope.notebook_vis = false;
-	    $scope.edit_vis     = false;
-	    $scope.ntcreate_vis = true;
-	    break;
 	}
+	if (name == "loading")  $scope.loading_vis  = true;
+	if (name == "search")   $scope.search_vis   = true;
+	if (name == "notebook") $scope.notebook_vis = true;
+	if (name == "edit")     $scope.edit_vis     = true;
+	if (name == "ntcreate") $scope.ntcreate_vis = true;
     }; 
 
     $scope.createNotebook = function (name, desc) {
@@ -146,6 +97,27 @@ app.controller('MainController', function($scope) {
 	    return true;
 	return false;
     };
+
+    // Navigate notes
+    $scope.getNotes = function(year, month, day)
+    {
+	$scope.toggleVis("navnotes");
+    }
+
+    $scope.getDays = function(year, month)
+    {
+	$scope.toggleVis("navdays");
+    }
+
+    $scope.getMonths = function(year)
+    {
+	$scope.toggleVis("navyear");
+    }
+
+    $scope.getYears = function()
+    {
+	$scope.toggleVis("navnb");
+    }
 
     // Notes menu
     $scope.callNote = function(nb,ix) {
