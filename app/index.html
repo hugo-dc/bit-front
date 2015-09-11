@@ -170,6 +170,19 @@
 		<textarea name="editor" id="editor" ng-model="markdown" placeholder="Enter markdown text here"></textarea>
 	      </div>
 	    </div>
+	    <!-- Navigate View -->
+	    <div class="row" ng-show="navnotes_vis">
+	      <div class="col-lg-12">
+		<h3>{{navigation}}</h3>
+		<ul>
+		  <li ng-repeat="item in navitem">
+		    <a href="#" ng-click="openNote(item.ix);">
+		      {{item.note.title}}
+		    </a>
+		  </li>
+		</ul>
+	      </div>
+	    </div>
 	    <!-- Create View -->
 	    <div class="row" ng-show="createn_vis">
 	      <div class="col-md-6">

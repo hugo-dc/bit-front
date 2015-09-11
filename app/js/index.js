@@ -18,6 +18,10 @@ app.controller('MainController', function($scope) {
     $scope.year = null;
     $scope.month = null;
     $scope.day = null;
+    $scope.navigation = null;
+    $scope.notebook = null;
+
+    $scope.navitem = null;
 
     $scope.pgHome = function() {
 	$scope.message = "";
@@ -43,6 +47,7 @@ app.controller('MainController', function($scope) {
         $scope.notebook_vis = false;
 	$scope.edit_vis     = false;
 	$scope.ntcreate_vis = false;
+	$scope.navnotes_vis = false;
 
 	if (name == "index")  $scope.welcome_vis = true;
         if (name == "create") {
@@ -55,6 +60,7 @@ app.controller('MainController', function($scope) {
 	if (name == "notebook") $scope.notebook_vis = true;
 	if (name == "edit")     $scope.edit_vis     = true;
 	if (name == "ntcreate") $scope.ntcreate_vis = true;
+	if (name == "navnotes") $scope.navnotes_vis = true;
     }; 
 
     $scope.createNotebook = function (name, desc) {
@@ -93,6 +99,7 @@ app.controller('MainController', function($scope) {
 
     $scope.isLastNote = function ()
     {
+	console.log($scope.nbook_ix);
 	if ($scope.note_ix == ($scope.notebooks[$scope.nbook_ix].notes.length - 1))
 	    return true;
 	return false;
@@ -101,22 +108,47 @@ app.controller('MainController', function($scope) {
     // Navigate notes
     $scope.getNotes = function(year, month, day)
     {
+	var current = $scope.current;
+	var notes = [];
+	var months = ["January", "February", "March",
+		      "April",   "May"     , "June",
+		      "July",    "August",   "September",
+		      "October", "November", "December"];
+	
+	$scope.navigation = $scope.title + " - Notes for " + months[month - 1] + " " + day + ", " + year;
 	$scope.toggleVis("navnotes");
+	$scope.current = current;
+
+	for (var i = 0; i <= $scope.notebook.notes.length - 1; i++)
+	{
+	    if ($scope.notebook.notes[i].year  == year  &&
+		$scope.notebook.notes[i].month == month &&
+		$scope.notebook.notes[i].day   == day )
+		notes.push({ix: i,
+			    note: $scope.notebook.notes[i]});
+	}
+	$scope.navitem = notes;
     }
 
     $scope.getDays = function(year, month)
     {
+	var current = $scope.current;
 	$scope.toggleVis("navdays");
+	$scope.current = current;
     }
 
     $scope.getMonths = function(year)
     {
+	var current = $scope.current;
 	$scope.toggleVis("navyear");
+	$scope.current = current;
     }
 
     $scope.getYears = function()
     {
+	var current = $scope.current;
 	$scope.toggleVis("navnb");
+	$scope.current = current;
     }
 
     // Notes menu
@@ -253,7 +285,9 @@ ipc.on('notebook-ready', function(data) {
     sc.$apply(function() {
 	sc.notebooks = data.nbs;
 	sc.toggleVis('notebook');
+	sc.notebook = lastNB;
 	sc.current = lastNB.id;
+	sc.title   = lastNB.name;
 	sc.markdown = lastNB.notes[data.nt_ix].content;
 	sc.nbtitle  = lastNB.notes[data.nt_ix].title;
 	sc.year     = lastNB.notes[data.nt_ix].year;
