@@ -115,7 +115,7 @@ app.controller('MainController', function($scope) {
 		      "July",    "August",   "September",
 		      "October", "November", "December"];
 	
-	$scope.navigation = $scope.title + " - Notes for " + months[month - 1] + " " + day + ", " + year;
+	$scope.navigation = "Notes for " + months[month - 1] + " " + day + ", " + year + " [Notebook: " + $scope.title + "]";
 	$scope.toggleVis("navnotes");
 	$scope.current = current;
 
@@ -151,12 +151,18 @@ app.controller('MainController', function($scope) {
 	$scope.current = current;
     }
 
+    // Open Note
+
+    $scope.openNote = function(ix) {
+	var curr = $scope.current;
+	$scope.toggleVis("notebook");
+	$scope.callNote($scope.nbook_ix, ix);
+	$scope.current = curr;
+    }
+
     // Notes menu
     $scope.callNote = function(nb,ix) {
-	console.log(nb);
-	console.log(ix);
 	var nb = $scope.notebooks[nb];
-	console.log(nb);
 	$scope.markdown = nb.notes[ix].content;
 	$scope.nbtitle  = nb.notes[ix].title;
 	$scope.year     = nb.notes[ix].year;
@@ -299,7 +305,7 @@ ipc.on('notebook-ready', function(data) {
     });
 });
 
-    ipc.on('loaded-notebooks', function (data) {
+ipc.on('loaded-notebooks', function (data) {
   var sc = getScope();
   sc.$apply(function() {
     sc.notebooks = data;
