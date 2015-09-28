@@ -319,10 +319,10 @@ app.controller('MainController', function($scope) {
 	   
     };
 
-  
-    $scope.btnBold = function() {
-	
+
+    $scope.surround = function(surr) {
 	var tx = document.getElementById("editor");
+	var added = surr.length * 2;
 	var newVal = "";
 	
 	if (tx.selectionStart != undefined){
@@ -330,18 +330,27 @@ app.controller('MainController', function($scope) {
 	    var en = tx.selectionEnd;
 	    if (st != en ) {
 		newVal = tx.value.substring(0,st);
-		newVal = newVal + "**" + tx.value.substring(st, en) + "**";
+		newVal = newVal + surr + tx.value.substring(st, en) + surr;
 		if (tx.value.length > en)
 		    newVal = newVal + tx.value.substring(en, tx.value.length -1);
 		tx.value = newVal;
 		$scope.markdown = newVal;
-		tx.setSelectionRange(en + 4, en + 4);
+		tx.setSelectionRange(en + added, en + added);
 		tx.focus();
 	    }else{
 		$scope.message("No text were selected");
 	    }
 	    
 	}
+	
+    }
+
+    $scope.btnItalics = function() {
+	$scope.surround("_");
+    }
+  
+    $scope.btnBold = function() {
+	$scope.surround("**");
     };
 
 
