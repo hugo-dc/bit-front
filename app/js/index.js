@@ -299,7 +299,6 @@ app.controller('MainController', function($scope) {
 		st --;
 	    }
 	    newVal = tx.value.substring(0,st);
-
 	    // If the selection is not the start of line
 	    // two lines will be created
 	    if(tx.value.substring(st - 2, st -1) != '\n'){
@@ -313,11 +312,38 @@ app.controller('MainController', function($scope) {
 		newVal = newVal + tx.value.substring(en, tx.value.length - 1);
 
 	    tx.value = newVal;
+	    $scope.markdown = newVal;
 	    tx.setSelectionRange(en + added, en + added);
 	    tx.focus();
 	}
 	   
     };
+
+  
+    $scope.btnBold = function() {
+	
+	var tx = document.getElementById("editor");
+	var newVal = "";
+	
+	if (tx.selectionStart != undefined){
+	    var st = tx.selectionStart;
+	    var en = tx.selectionEnd;
+	    if (st != en ) {
+		newVal = tx.value.substring(0,st);
+		newVal = newVal + "**" + tx.value.substring(st, en) + "**";
+		if (tx.value.length > en)
+		    newVal = newVal + tx.value.substring(en, tx.value.length -1);
+		tx.value = newVal;
+		$scope.markdown = newVal;
+		tx.setSelectionRange(en + 4, en + 4);
+		tx.focus();
+	    }else{
+		$scope.message("No text were selected");
+	    }
+	    
+	}
+    };
+
 
     // Thi function is used to CREATE or UPDATE a note
     $scope.mnViewHtml = function() {
@@ -348,7 +374,6 @@ app.controller('MainController', function($scope) {
 			 "title"   : null
 		       };
 	    var change = false;
-	
 	    if ($scope.markdown != $scope.lastNote.content) {
 		args.content = $scope.markdown;
 		change = true;
