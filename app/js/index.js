@@ -279,6 +279,46 @@ app.controller('MainController', function($scope) {
 	$scope.message = "";
     };
 
+    $scope.btnHeader = function() {
+	var tx = document.getElementById("editor");
+	var newVal = "";
+
+	if (tx.selectionStart != undefined) {
+	    var st = tx.selectionStart;
+	    var en = tx.selectionEnd;
+	    var added = 0;
+
+	    // If no text is selected, the curren line
+	    // will be a title
+	    if (st == en) {
+		var ch = tx.value.substring(st -2, st -1);
+		while(ch != '\n') {
+		    st--;
+		    ch = tx.value.substring(st -2, st -1);
+		}
+		st --;
+	    }
+	    newVal = tx.value.substring(0,st);
+
+	    // If the selection is not the start of line
+	    // two lines will be created
+	    if(tx.value.substring(st - 2, st -1) != '\n'){
+		newVal = newVal + "\n\n# " + tx.value.substring(st, en);
+		added = 4;
+	    }else{
+		newVal = newVal + "# " + tx.value.substring(st, en);
+		added = 2;
+	    }
+	    if (tx.value.length > en )
+		newVal = newVal + tx.value.substring(en, tx.value.length - 1);
+
+	    tx.value = newVal;
+	    tx.setSelectionRange(en + added, en + added);
+	    tx.focus();
+	}
+	   
+    };
+
     // Thi function is used to CREATE or UPDATE a note
     $scope.mnViewHtml = function() {
 	var curr = $scope.current;
