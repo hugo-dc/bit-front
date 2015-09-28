@@ -324,6 +324,7 @@ app.controller('MainController', function($scope) {
 	var tx = document.getElementById("editor");
 	var added = surr.length * 2;
 	var newVal = "";
+	$scope.message = "";
 	
 	if (tx.selectionStart != undefined){
 	    var st = tx.selectionStart;
@@ -338,7 +339,9 @@ app.controller('MainController', function($scope) {
 		tx.setSelectionRange(en + added, en + added);
 		tx.focus();
 	    }else{
-		$scope.message("No text were selected");
+		tx.setSelectionRange(st, st);
+		tx.focus();
+		$scope.message = "No text were selected";
 	    }
 	    
 	}
