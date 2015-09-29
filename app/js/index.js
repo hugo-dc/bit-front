@@ -33,14 +33,13 @@ app.controller('MainController', function($scope) {
 	$scope.toggleVis('index');
     };
 
-  $scope.pgCreateNotebook = function() {
-    $scope.toggleVis('create');
-  };
+    $scope.pgCreateNotebook = function() {
+	$scope.toggleVis('create');
+    };
   
-  $scope.pgSearchNotebook = function() {
-    $scope.toggleVis('search');
-  };
-
+    $scope.pgSearchNotebook = function() {
+	$scope.toggleVis('search');
+    };
 
     $scope.toggleVis = function(name) {
 	$scope.current = name;
@@ -89,11 +88,8 @@ app.controller('MainController', function($scope) {
 
     $scope.isActive = function(page) {
 	if (page == $scope.current)
-	{
 	    return true; 
-	} else {
-	    return false;
-	}
+	return false;
     };
 
     $scope.isFirstNote = function() {
@@ -114,8 +110,7 @@ app.controller('MainController', function($scope) {
     }
 
     // Navigate notes
-    $scope.getNotes = function(year, month, day)
-    {
+    $scope.getNotes = function(year, month, day){
 	var current = $scope.current;
 	var notes = [];
 
@@ -126,8 +121,7 @@ app.controller('MainController', function($scope) {
 	$scope.toggleVis("navnotes");
 	$scope.current = current;
 
-	for (var i = 0; i <= $scope.notebook.notes.length - 1; i++)
-	{
+	for (var i = 0; i <= $scope.notebook.notes.length - 1; i++){
 	    if ($scope.notebook.notes[i].year  == year  &&
 		$scope.notebook.notes[i].month == month &&
 		$scope.notebook.notes[i].day   == day )
@@ -135,10 +129,9 @@ app.controller('MainController', function($scope) {
 			    note: $scope.notebook.notes[i]});
 	}
 	$scope.navitem = notes;
-    }
+    };
 
-    $scope.getDays = function(year, month)
-    {
+    $scope.getDays = function(year, month){
 	var current = $scope.current;
 	$scope.toggleVis("navnotes");
 	$scope.setNavTitle($scope.months[month - 1] + ", " + year);
@@ -168,10 +161,9 @@ app.controller('MainController', function($scope) {
 	}
 	$scope.navmonth = days;
 	$scope.current = current;
-    }
+    };
 
-    $scope.getMonths = function(year)
-    {
+    $scope.getMonths = function(year){
 	var current = $scope.current;
 	$scope.toggleVis("navnotes");
 	$scope.setNavTitle(year);
@@ -198,7 +190,7 @@ app.controller('MainController', function($scope) {
 	    if ($scope.notebook.notes[i].year > year) break;
 	}
 	$scope.navyear = months;
-    }
+    };
 
     $scope.getYears = function(){
 	var current = $scope.current;
@@ -226,7 +218,6 @@ app.controller('MainController', function($scope) {
     }
 
     // Open Note
-
     $scope.openNote = function(ix) {
 	var curr = $scope.current;
 	$scope.toggleVis("notebook");
@@ -345,18 +336,67 @@ app.controller('MainController', function($scope) {
 	    }
 	    
 	}
-	
-    }
+    };
 
     $scope.btnItalics = function() {
 	$scope.surround("_");
-    }
+    };
   
     $scope.btnBold = function() {
 	$scope.surround("**");
     };
 
 
+    $scope.List = function(ind) {
+	var tx = document.getElementById("editor");
+	var newVal = "";
+	var added = 2 + ind.length;
+
+	if (tx.selectionStart != undefined) {
+	    var st = tx.selectionStart;
+	    var en = tx.selectionEnd;
+	    if(st == en){
+		var ch = tx.value.substring(st -1, st);
+
+		while(ch != '\n') {
+		    console.log("In WHILE");
+		    st--;
+		    if( st < 0) {
+			st = 0;
+			break;
+		    }
+		    ch = tx.value.substring(st-1, st);
+		}
+	    }
+	    
+	    newVal = tx.value.substring(0, st);
+	    newVal = newVal + "\n" + ind + "  ";
+	    console.log(newVal);
+	    	
+	    if(tx.value.length > en){
+		newVal = newVal + tx.value.substring(en, tx.value.length - 1);
+	    }
+	    tx.value = newVal;
+	    $scope.markdown = newVal;
+	    tx.setSelectionRange(en+added, en+added);
+	    tx.focus();
+	}
+    };
+
+    $scope.btnUList = function() {
+	$scope.List("*");
+    };
+
+    $scope.btnOList = function() {
+	$scope.List("1.");
+    };
+
+    
+    // This function is triggered when a change is made in the Notes Editor
+    $scope.editorChange = function(){
+	// TODO: Implement function
+    };
+    
     // Thi function is used to CREATE or UPDATE a note
     $scope.mnViewHtml = function() {
 	var curr = $scope.current;

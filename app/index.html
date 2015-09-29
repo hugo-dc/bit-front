@@ -146,9 +146,9 @@
 		  <button type="button" class="btn btn-default" ng-click="btnItalics()">
 		    <span class="fa fa-italic"></span>
 		  </button>
-		  <button type="button" class="btn btn-default">
+		  <button type="button" class="btn btn-default" ng-click="btnUList()">
 		    <span class="fa fa-list-ul"></span></button>
-		  <button type="button" class="btn btn-default">
+		  <button type="button" class="btn btn-default" ng-click="btnOList()">
 		    <span class="fa fa-list-ol"></span></button>
 		  <button type="button" class="btn btn-default">
 		    <span class="fa fa-link"></span></button>
@@ -171,7 +171,9 @@
 	    </div>
 	    <div class="row nt_content" ng-show="edit_vis">
 	      <div class="col-lg-12">
-		<textarea name="editor" id="editor" ng-model="markdown" placeholder="Enter markdown text here"></textarea>
+		<textarea name="editor" id="editor"
+		ng-model="markdown" placeholder="Enter markdown text
+		here" ng-change="editorChange()"></textarea>
 	      </div>
 	    </div>
 	    <!-- Navigate View -->
