@@ -20,6 +20,11 @@ app.controller('MainController', function($scope) {
     $scope.day = null;
     $scope.navigation = null;
     $scope.notebook = null;
+    $scope.edit_lnk = false;
+    $scope.st = null;
+    $scope.en = null;
+    $scope.link = "";
+    $scope.lnk_title ="";
 
     $scope.months = ["January", "February", "March",
 		     "April",   "May"     , "June",
@@ -334,7 +339,6 @@ app.controller('MainController', function($scope) {
 		tx.focus();
 		$scope.message = "No text were selected";
 	    }
-	    
 	}
     };
 
@@ -346,6 +350,51 @@ app.controller('MainController', function($scope) {
 	$scope.surround("**");
     };
 
+    $scope.btnLink = function() {
+	$scope.edit_lnk = true;
+	var tx = document.getElementById("editor");
+	var ip = document.getElementById("lnk_title");
+	
+	$scope.st = tx.selectionStart;
+	$scope.en = tx.selectionEnd;
+
+	ip.focus();
+	
+    };
+
+    $scope.lnkAccept = function() {
+	var newVal = "";
+	var tx = document.getElementById("editor");
+	var added = 0;
+	
+	if ($scope.st != undefined) {
+	    newVal = tx.value.substring(0, $scope.st);
+	    if($scope.lnk_title != undefined){
+		console.log($scope.lnk_title);
+		newVal = newVal + "[" + $scope.lnk_title + "](" + $scope.link + ") ";
+		added = $scope.lnk_title.length + $scope.link.length;
+	    }else {
+		newVal = newVal + "[" + $scope.link + "](" + $scope.link + ")";
+		added = $scope.link.length * 2;
+	    }
+	    added+= 4;
+	    newVal = newVal + tx.value.substring($scope.en, tx.value.length - 1);
+	    tx.value = newVal;
+	    $scope.markdown = newVal;
+	}
+	$scope.edit_lnk = false;
+	tx.setSelectionRange($scope.en + added, $scope.en + added);
+	tx.focus();
+	$scope.link = "";
+	$scope.lnk_title = "";
+	$scope.st = null;
+	$scope.en = undefined;
+	
+    };
+
+    $scope.lnkCancel = function () {
+	$scope.edit_lnk = false;
+    };
 
     $scope.List = function(ind) {
 	var tx = document.getElementById("editor");

@@ -150,7 +150,7 @@
 		    <span class="fa fa-list-ul"></span></button>
 		  <button type="button" class="btn btn-default" ng-click="btnOList()">
 		    <span class="fa fa-list-ol"></span></button>
-		  <button type="button" class="btn btn-default">
+		  <button type="button" class="btn btn-default" ng-click="btnLink()">
 		    <span class="fa fa-link"></span></button>
 		  <button type="button" class="btn btn-default">
 		    <span class="fa fa-code"></span></button>
@@ -159,6 +159,24 @@
 		    <span class="fa fa-camera-retro"></span></button>
 		</div>
 		{{message}}
+	      </div>
+	    </div>
+	    <div id="lk_title" class="row lk_title" ng-show="edit_lnk">
+	      <div class="col-lg-11">
+		<div class="input-group">
+		  <input type="text" id="lnk_title" class="form-control"
+		  name="lk_title" ng-model="lnk_title"
+			 placeholder="Link Title (Optional)">
+		  <input type="text" class="form-control" name="link"
+			 ng-model="link"
+			 placeholder="http://example.com">
+		</div>
+		<div class="input-group">
+		  <div class="input-group-btn">
+		    <button type="button" class="btn btn-default" ng-click="lnkAccept()">Accept</button>
+		    <button type="button" class="btn btn-danger" ng-click="lnkCancel()">Cancel</button>
+		  </div>
+		</div>
 	      </div>
 	    </div>
 	    <div class="row nt_title" ng-show="edit_vis">

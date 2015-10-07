@@ -10,7 +10,7 @@
     /* font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif; */
     font-family: "Lucida Console", Monaco, monospace;
     font-size: 15px;
-    border: 0px solid #ccc;
+    border: 0px solid #cccccc;
 }
 
 #path {
@@ -33,6 +33,14 @@
 
 .nt_title {
     margin-top: 10px;
+}
+
+.lk_title {
+    margin-top: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    border: 1px solid #005ff5;
+    background-color: #efefef ; /*  #81A9CC ;  #E66155; */
 }
 
 .nt_content {
