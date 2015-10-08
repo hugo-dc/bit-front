@@ -369,7 +369,7 @@ app.controller('MainController', function($scope) {
 	
 	if ($scope.st != undefined) {
 	    newVal = tx.value.substring(0, $scope.st);
-	    if($scope.lnk_title != undefined){
+	    if($scope.lnk_title != undefined && $scope.lnk_title != ""){
 		console.log($scope.lnk_title);
 		newVal = newVal + "[" + $scope.lnk_title + "](" + $scope.link + ") ";
 		added = $scope.lnk_title.length + $scope.link.length;
@@ -377,7 +377,7 @@ app.controller('MainController', function($scope) {
 		newVal = newVal + "[" + $scope.link + "](" + $scope.link + ")";
 		added = $scope.link.length * 2;
 	    }
-	    added+= 4;
+	    added+= 5;
 	    newVal = newVal + tx.value.substring($scope.en, tx.value.length - 1);
 	    tx.value = newVal;
 	    $scope.markdown = newVal;
