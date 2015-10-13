@@ -152,7 +152,7 @@
 		    <span class="fa fa-list-ol"></span></button>
 		  <button type="button" class="btn btn-default" ng-click="btnLink()">
 		    <span class="fa fa-link"></span></button>
-		  <button type="button" class="btn btn-default">
+		  <button type="button" class="btn btn-default" ng-click="btnCode()">
 		    <span class="fa fa-code"></span></button>
 		  <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-picture"></span></button>
 		  <button type="button" class="btn btn-default">
@@ -179,7 +179,36 @@
 		</div>
 	      </div>
 	    </div>
-	    <div class="row nt_title" ng-show="edit_vis">
+	    <div id="cd_lang" class="row code" ng-show="code">
+	      <div class="col-lg-11">
+		<div class="input-group">
+		  <select id="lang">
+		    <option value="abap">Abap</option>
+		    <option value="bash">Bash</option>
+		    <option value="c">C</option>
+		    <option value="cpp">C++</option>
+		    <option value="haskell">Haskell</option>
+		    <option value="html">Html</option>		  
+		    <option value="javascript">Javascript</option>
+		    <option value="markdown">Markdown</option>
+		    <option value="ruby">Ruby</option>
+		  </select>
+		</div>
+		<div class="input-group">
+		  <textarea name="code" id="code" ng-show="code"></textarea>
+		</div>
+		<div class="input-group">
+		  <div class="input-group-btn">
+		    <button type="button" class="btn btn-default"
+			    ng-click="cdAccept()">Accept</button>
+		    <button type="button" class="btn btn-danger"
+			    ng-click="cdCancel()">Cancel</button>
+		  </div>
+		</div>
+	      </div>
+	    </div>
+		  <!-- TODO: insert drop down here -->
+		  <div class="row nt_title" ng-show="edit_vis">
 	      <div class="col-lg-11">
 		<div class="input-group">
 		  <span class="input-group-addon">Title</span>

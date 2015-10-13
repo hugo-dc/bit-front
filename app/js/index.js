@@ -362,6 +362,42 @@ app.controller('MainController', function($scope) {
 	
     };
 
+    $scope.btnCode = function () {
+	$scope.code = true;
+	var tx = document.getElementById("editor");
+	$scope.st = tx.selectionStart;
+	$scope.en = tx.selectionEnd;
+    }
+
+    $scope.cdAccept = function() {
+	$scope.code = false;
+	var newVAL = "";
+	var tx = document.getElementById("editor");
+	var added = 0;
+	var lg = document.getElementById("lang");
+	var cd = document.getElementById("code");
+
+	if ($scope.st != undefined) {
+	    newVal = tx.value.substring(0, $scope.st);
+	    newVal = newVal + "\n```" + lg.value + "\n" + cd.value + "\n```";
+	    added = lg.length + cd.length + 9;
+	}
+	newVal = newVal + tx.value.substring($scope.en, tx.value.length -1);
+	tx.value = newVal;
+	$scope.markdown = newVal;
+	tx.setSelectionRange($scope.en + added, $scope.en + added);
+	tx.focus();
+	cd.value = "";
+	$scope.st = null;
+	$scope.en = null;
+    }
+
+    $scope.cdCancel = function () {
+	$scope.code = false;
+	var cd = document.getElementById("code");
+	cd.value = "";
+    }
+
     $scope.lnkAccept = function() {
 	var newVal = "";
 	var tx = document.getElementById("editor");
