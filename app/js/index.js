@@ -344,11 +344,11 @@ app.controller('MainController', function($scope) {
 
     $scope.btnItalics = function() {
 	$scope.surround("_");
-    };
+    }
   
     $scope.btnBold = function() {
 	$scope.surround("**");
-    };
+    }
 
     $scope.btnLink = function() {
 	$scope.edit_lnk = true;
@@ -360,7 +360,7 @@ app.controller('MainController', function($scope) {
 
 	ip.focus();
 	
-    };
+    }
 
     $scope.btnCode = function () {
 	$scope.code = true;
@@ -368,6 +368,36 @@ app.controller('MainController', function($scope) {
 	$scope.st = tx.selectionStart;
 	$scope.en = tx.selectionEnd;
     }
+
+    
+    $scope.btnSShot = function () {
+	var tx = document.getElementById("editor");
+	$scope.st = tx.selectionStart;
+	$scope.en = tx.selectionEnd;
+	var args = {};
+	console.log('Screenshot...');
+	ipc.send('capture-screenshot', args);
+    }
+
+    // This function is called by the backend
+    $scope.addScreenshot = function (ssid) {
+	var newVal = "";
+	var tx = document.getElementById("editor");
+	var added = 0;
+	if ($scope.st != undefined) {
+	    newVal = tx.value.substring(0, $scope.st);
+	    newVal = newVal + "![](../bin/images/" + ssid + ".png) ";
+	    added = 37;
+	}
+	newVal = newVal + tx.value.substring($scope.en, tx.value.length -1);
+	tx.value = newVal;
+	$scope.markdown = newVal;
+	tx.setSelectionRange($scope.en + added, $scope.en + added);
+	tx.focus();
+	$scope.st = null;
+	$scope.en = null;
+    }
+
 
     $scope.cdAccept = function() {
 	$scope.code = false;
@@ -380,7 +410,7 @@ app.controller('MainController', function($scope) {
 	if ($scope.st != undefined) {
 	    newVal = tx.value.substring(0, $scope.st);
 	    newVal = newVal + "\n```" + lg.value + "\n" + cd.value + "\n```";
-	    added = lg.length + cd.length + 9;
+	    added = lg.value.length + cd.value.length + 9;
 	}
 	newVal = newVal + tx.value.substring($scope.en, tx.value.length -1);
 	tx.value = newVal;
@@ -581,5 +611,10 @@ ipc.on('loaded-notebooks', function (data) {
   });
 });
 
-
-	
+// Screenshot taken
+ipc.on('screenshot', function(data) {
+    var sc = getScope();
+    sc.$apply(function() {
+	sc.addScreenshot(data.ssid);
+    });
+});

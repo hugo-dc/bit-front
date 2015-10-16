@@ -152,23 +152,19 @@ app.on('window-all-closed', function() {
 // This method will be called when electron has finished 
 // initialization and is ready to create browser windows.
 app.on('ready', function() {
-  // Create the browser window.
-  mainWindow = new BrowserWindow({ width: 800, height: 600, fullscreen: true });
-  mainWindow.loadUrl('file://' + __dirname + '/app/index.html');
+    // Create the browser window.
+    mainWindow = new BrowserWindow({ width: 800, height: 600});
+    mainWindow.loadUrl('file://' + __dirname + '/app/index.html');
 
-  // and load the index.html of the app.
-
-  // Open the devtools.
-    // mainWindow.openDevTools();
     mainWindow.maximize();
 
-  // Emitted when the window is closed.
-  mainWindow.on('closed', function() {
-    // Dereference the window object, usually you would store windows 
-    // in an array if your app supports multi windows, this is the time 
-    // when you should delete the corresponding element.
-    mainWindow = null;
-  });
+    // Emitted when the window is closed.
+    mainWindow.on('closed', function() {
+	// Dereference the window object, usually you would store windows 
+	// in an array if your app supports multi windows, this is the time 
+	// when you should delete the corresponding element.
+	mainWindow = null;
+    });
 });
 
 // Create Notebook
@@ -273,6 +269,25 @@ ipc.on('create-note', function(event, args) {
 				}
 			       );
 });
+
+// Screenshot
+
+ipc.on('capture-screenshot', function (event, args) {
+    var child_process = require('child_process');
+    var clipboard = require('clipboard');
+
+    console.log('Minimizing...');
+    mainWindow.minimize();
+
+    var ch = child_process.spawnSync(__dirname + '\\bin\\bnsc.bat', [], {cwd: __dirname + '\\bin'});
+
+    console.log('Maximizing...');
+    mainWindow.maximize();
+
+    var ssid = clipboard.readText();
+    mainWindow.webContents.send('screenshot', {'ssid': ssid});
+});
+
 
 // Update note
 ipc.on('update-note', function(event, args) {
