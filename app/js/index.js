@@ -117,10 +117,9 @@ app.controller('MainController', function($scope, $http) {
 	}
     };
     
-    $scope.openNotebook = function(nb_id) {
+    $scope.openNotebook = function(nb_name) {
 	$scope.toggleVis("loading");
-	var args = { "id" : nb_id };
-	$http.get(SERVER + "get-notebook/"+ nb_id).success(function(data) {
+	$http.get(SERVER + "get-notebook-by-name/"+ nb_name).success(function(data) {
 	    
 	});
 //	ipc.send('open-notebook', args);
