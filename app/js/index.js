@@ -2,9 +2,20 @@ var app = angular.module('Beenotes', []);
 
 var ipc = require('ipc');
 
-ipc.send('load-notebooks');
+var SERVER = "http://localhost:3000/";
 
-app.controller('MainController', function($scope) {
+
+app.controller('MainController', function($scope, $http) {
+    $http.get(SERVER + "get-notebooks").success(function(data){
+	$scope.toggleVis('index');
+	$scope.notebooks = data;
+	if (data.length === 0) {
+	    $scope.message = "You can start creating your first notebook!";
+	}else{
+	    $scope.message = "You have a total of " + data.length + " notebooks!";   
+	}
+    });
+    
     $scope.title = "Personal Notes";
     $scope.loading_vis = true;
     $scope.welcome_vis = false;
@@ -25,6 +36,7 @@ app.controller('MainController', function($scope) {
     $scope.en = null;
     $scope.link = "";
     $scope.lnk_title ="";
+    $scope.debug = "debug";
 
     $scope.months = ["January", "February", "March",
 		     "April",   "May"     , "June",
@@ -70,7 +82,7 @@ app.controller('MainController', function($scope) {
 	if (name == "edit")     $scope.edit_vis     = true;
 	if (name == "ntcreate") $scope.ntcreate_vis = true;
 	if (name == "navnotes") $scope.navnotes_vis = true;
-    }; 
+    };
 
     $scope.createNotebook = function (name, desc) {
 	$scope.toggleVis("loading");
@@ -81,14 +93,37 @@ app.controller('MainController', function($scope) {
 	{
 	    $scope.message = "Provide both values";
 	} else {
-	    ipc.send('create-notebook', args);
+	    // ipc.send('create-notebook', args);
+	    $http.get('http://localhost:3000/create-notebook/' + name + '/' + desc).success(function(data){
+
+		if (data.successR == false) {
+		    $scope.toggleVis("create");
+		    $scope.message = data.messageR;
+		}else{
+		    $scope.toggleVis('notebook');
+		    $http.get('http://localhost:3000/get-note/' + name + '/1').success(function(data){
+			document.getElementById('note').innerHTML = data.nHtml;
+			$scope.current = data.parentId;
+			$scope.title   = name;
+			$scope.markdown = data.nContent;
+			$scope.nbtitle  = data.nTitle;
+			$scope.year     = data.ntYear;
+			$scope.month    = data.ntMonth;
+			$scope.day      = data.ntDay;
+			$scope.lastNote = data.ntId;
+		    });
+		}
+	    });
 	}
     };
     
     $scope.openNotebook = function(nb_id) {
 	$scope.toggleVis("loading");
 	var args = { "id" : nb_id };
-	ipc.send('open-notebook', args);
+	$http.get(SERVER + "get-notebook/"+ nb_id).success(function(data) {
+	    
+	});
+//	ipc.send('open-notebook', args);
     };
 
     $scope.isActive = function(page) {
@@ -386,7 +421,7 @@ app.controller('MainController', function($scope) {
 	var added = 0;
 	if ($scope.st != undefined) {
 	    newVal = tx.value.substring(0, $scope.st);
-	    newVal = newVal + "![](../bin/images/" + ssid + ".png) ";
+	    newVal = newVal + "![](../../../bin/images/" + ssid + ".png) ";
 	    added = 37;
 	}
 	newVal = newVal + tx.value.substring($scope.en, tx.value.length -1);
@@ -568,6 +603,7 @@ var getScope = function() {
     return sc;
 };
 
+/*
 ipc.on('notebook-exists', function() {
     var sc = getScope();
     sc.$apply(function() {
@@ -575,6 +611,7 @@ ipc.on('notebook-exists', function() {
 	sc.message =  "Notebook already exists!";
     });
 });
+*/
 
 // This event is called when a new notebook is created
 ipc.on('notebook-ready', function(data) {
@@ -595,22 +632,9 @@ ipc.on('notebook-ready', function(data) {
 	sc.lastNote = lastNB.notes[data.nt_ix]; // TODO: Fix
 	sc.nbook_ix = data.nb_ix;
 	sc.note_ix  = data.nt_ix;
+	sc.debug    = data.debug;
     });
 });
-
-ipc.on('loaded-notebooks', function (data) {
-  var sc = getScope();
-  sc.$apply(function() {
-    sc.notebooks = data;
-    sc.toggleVis('index');
-    if (sc.notebooks.length == 0) {
-      sc.message = "You can start creating your first notebook!";
-    }else {
-      sc.message = "You have a total of " + sc.notebooks.length + " notebooks!"
-    }
-  });
-});
-
 // Screenshot taken
 ipc.on('screenshot', function(data) {
     var sc = getScope();

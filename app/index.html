@@ -33,7 +33,6 @@
 </head>
 
 <body>
-
     <div id="wrapper">
         <!-- Sidebar -->
         <div id="sidebar-wrapper">
@@ -50,10 +49,10 @@
 		</a>
                 </li>
                 <li ng-repeat="item in notebooks">
-                  <a ng-class="{active: isActive(item.id)}" href="#"
-		     ng-click="openNotebook(item.id);">
+                  <a ng-class="{active: isActive(item.nbId)}" href="#"
+		     ng-click="openNotebook(item.nbName);">
 		    <span class="fa fa-file-text-o fa-1g"></span>
-		    {{item.name}}
+		    {{item.nbName}}
 		  </a>
                 </li>
                 <li>
@@ -218,8 +217,7 @@
 	    <div class="row nt_content" ng-show="edit_vis">
 	      <div class="col-lg-12">
 		<textarea name="editor" id="editor"
-		ng-model="markdown" placeholder="Enter markdown text
-		here" ng-change="editorChange()"></textarea>
+		ng-model="markdown" placeholder="Enter markdown here..." ng-change="editorChange()"></textarea>
 	      </div>
 	    </div>
 	    <!-- Navigate View -->
@@ -298,7 +296,7 @@
         <!--$("#wrapper").toggleClass("toggled");-->
     <!--});-->
     <!--</script>-->
-
+<!--    {{debug}}-->
 </body>
 
 </html>
