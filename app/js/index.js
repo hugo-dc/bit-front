@@ -118,11 +118,25 @@ app.controller('MainController', function($scope, $http) {
     };
     
     $scope.openNotebook = function(nb_name) {
+	$scope.message = "Loading...";
 	$scope.toggleVis("loading");
 	$http.get(SERVER + "get-notebook-by-name/"+ nb_name).success(function(data) {
-	    
+	    $scope.notebook = data;
+	    $scope.current  = data.nbId;
+	    $scope.title    = data.nbName;
+//	    $scope.nbook_ix = data.nbId;
+	    $http.get(SERVER + "get-last-note/" + data.nbId).success(function(data) {
+		$scope.toggleVis('notebook');
+		$scope.markdown = data.nContent;
+		document.getElementById('note').innerHTML = data.nHtml;
+		$scope.year     = data.ntYear;
+		$scope.month    = data.ntMonth;
+		$scope.day      = data.ntDay;
+		$scope.nbtitle  = data.nTitle;
+		$scope.lastNoteId = data.ntId;
+		$scope.note_ix    = data.ntId;
+	    });
 	});
-//	ipc.send('open-notebook', args);
     };
 
     $scope.isActive = function(page) {
@@ -132,14 +146,14 @@ app.controller('MainController', function($scope, $http) {
     };
 
     $scope.isFirstNote = function() {
-	if ($scope.note_ix == 0)
+	if ($scope.note_ix === 1)
 	    return true;
 	return false;
     };
 
     $scope.isLastNote = function ()
     {
-	if ($scope.note_ix == ($scope.notebooks[$scope.nbook_ix].notes.length - 1))
+	if ($scope.note_ix === $scope.lastNoteId)
 	    return true;
 	return false;
     };
