@@ -6,6 +6,13 @@ var SERVER = "http://localhost:3000/";
 
 
 app.controller('MainController', function($scope, $http) {
+    
+    $http.get(SERVER + "api-ready").success(function(data) {
+	$scope.message = data.messageR;
+    }).error(function (data) {
+	$scope.message = "ERROR!: API is not ready!";
+    });
+   
     $http.get(SERVER + "get-notebooks").success(function(data){
 	$scope.toggleVis('index');
 	$scope.notebooks = data;
@@ -581,7 +588,10 @@ app.controller('MainController', function($scope, $http) {
 			 "content" : $scope.markdown,
 			 "nbix" : $scope.nbook_ix,
 		       };
-	    ipc.send('create-note', args);
+	    //ipc.send('create-note', args);
+	    $http.get(SERVER + "create-note/" + $scope.nbook_ix + "/" + $scope.nbtitle + "/" + $scope.markdown).success(function(data) {
+		
+	    });
 	}else {
 	    var args = { "nbix"    : $scope.nbook_ix,
 			 "ntix"    : $scope.note_ix,

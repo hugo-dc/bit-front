@@ -31,7 +31,6 @@
     <![endif]-->
 
 </head>
-
 <body>
     <div id="wrapper">
         <!-- Sidebar -->
@@ -91,8 +90,11 @@
 	      <div class="col-lg-7">
 		<div class="btn-group" role="group" aria-label="...">
 		  <button type="button" ng-class="{'btn':
-						  true,'btn-default' :
-						  true,'disabled': isFirstNote()}" ng-click="mnPrev()"><span class="glyphicon glyphicon-arrow-left" aria-hiden="true"></span> Previous</button>
+						  true,'btn-default':
+						  true,'disabled':
+						  isFirstNote()}"
+			  ng-click="mnPrev()">
+		    <span class="glyphicon glyphicon-arrow-left" aria-hiden="true"></span> Previous</button>
 		  <button type="button" class="btn btn-default" ng-click="mnCreate()"><span class="fa fa-file-text-o fa-1g"></span> Create </button>
 		  <button type="button" class="btn btn-default" ng-click="mnEdit()">
 		    <span class="fa fa-pencil-square-o"></span>
