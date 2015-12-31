@@ -1,12 +1,8 @@
 var app = angular.module('Beenotes', []);
-
 var ipc = require('ipc');
-
 var SERVER = "http://localhost:3000/";
 
-
 app.controller('MainController', function($scope, $http) {
-    
     $http.get(SERVER + "api-ready").success(function(data) {
 	$scope.message = data.messageR;
     }).error(function (data) {
@@ -127,11 +123,12 @@ app.controller('MainController', function($scope, $http) {
     $scope.openNotebook = function(nb_name) {
 	$scope.message = "Loading...";
 	$scope.toggleVis("loading");
+
 	$http.get(SERVER + "get-notebook-by-name/"+ nb_name).success(function(data) {
 	    $scope.notebook = data;
 	    $scope.current  = data.nbId;
 	    $scope.title    = data.nbName;
-//	    $scope.nbook_ix = data.nbId;
+	    $scope.nbook_ix = data.nbId;
 	    $http.get(SERVER + "get-last-note/" + data.nbId).success(function(data) {
 		$scope.toggleVis('notebook');
 		$scope.markdown = data.nContent;
@@ -142,6 +139,7 @@ app.controller('MainController', function($scope, $http) {
 		$scope.nbtitle  = data.nTitle;
 		$scope.lastNoteId = data.ntId;
 		$scope.note_ix    = data.ntId;
+		$scope.current    = $scope.nbook_ix;
 	    });
 	});
     };
@@ -287,9 +285,12 @@ app.controller('MainController', function($scope, $http) {
 
     // Notes menu
     $scope.callNote = function(nb,ix) {
+	console.log("Testing callNote:");
+	console.log(nb);
+	console.log(ix);
 	// Get Note using WS
 	$scope.note_ix  = ix;
-	document.getElementById('note').innerHTML = nb.notes[ix].html;
+	// document.getElementById('note').innerHTML = nb.notes[ix].html;
 	$scope.message ="";
     }
 
@@ -365,7 +366,6 @@ app.controller('MainController', function($scope, $http) {
 	   
     };
 
-
     $scope.surround = function(surr) {
 	var tx = document.getElementById("editor");
 	var added = surr.length * 2;
@@ -419,7 +419,6 @@ app.controller('MainController', function($scope, $http) {
 	$scope.en = tx.selectionEnd;
     }
 
-    
     $scope.btnSShot = function () {
 	var tx = document.getElementById("editor");
 	$scope.st = tx.selectionStart;
@@ -447,7 +446,6 @@ app.controller('MainController', function($scope, $http) {
 	$scope.st = null;
 	$scope.en = null;
     }
-
 
     $scope.cdAccept = function() {
 	$scope.code = false;
@@ -555,7 +553,6 @@ app.controller('MainController', function($scope, $http) {
     $scope.btnOList = function() {
 	$scope.List("1.");
     };
-
     
     // This function is triggered when a change is made in the Notes Editor
     $scope.editorChange = function(){

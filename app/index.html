@@ -33,93 +33,91 @@
 </head>
 <body>
     <div id="wrapper">
-        <!-- Sidebar -->
-        <div id="sidebar-wrapper">
-            <ul class="sidebar-nav">
-                <li class="sidebar-brand">
-                    <a href="#">
-                      Beenotes
-                    </a>
-                </li>
-                <li>
-                <a ng-class="{'active': isActive('index')}" href="#" ng-click="pgHome();">
-		  <span class="fa fa-home fa-1g"></span>
-		  Home
-		</a>
-                </li>
-                <li ng-repeat="item in notebooks">
-                  <a ng-class="{active: isActive(item.nbId)}" href="#"
-		     ng-click="openNotebook(item.nbName);">
-		    <span class="fa fa-file-text-o fa-1g"></span>
-		    {{item.nbName}}
-		  </a>
-                </li>
-                <li>
-                  <a ng-class="{active: isActive('create')}" href="#"
-		     ng-click="pgCreateNotebook();">
-		    <span class="fa fa-plus fa-1g"></span>
-		    Create
-		  </a>
-                </li>
-            </ul>
-        </div>
-        <!-- /#sidebar-wrapper -->
+      <!-- Sidebar -->
+      <div id="sidebar-wrapper">
+        <ul class="sidebar-nav">
+          <li class="sidebar-brand">
+            <a href="#">Beenotes</a>
+          </li>
+          <li>
+            <a ng-class="{'active': isActive('index')}" href="#" ng-click="pgHome();">
+	      <span class="fa fa-home fa-1g"></span>
+	      Home
+	    </a>
+          </li>
+          <li ng-repeat="item in notebooks">
+            <a ng-class="{active: isActive(item.nbId)}" href="#"
+	       ng-click="openNotebook(item.nbName);">
+	      <span class="fa fa-file-text-o fa-1g"></span>
+	      {{item.nbName}}
+	    </a>
+          </li>
+          <li>
+            <a ng-class="{active: isActive('create')}" href="#"
+	       ng-click="pgCreateNotebook();">
+	      <span class="fa fa-plus fa-1g"></span>
+	      Create
+	    </a>
+          </li>
+        </ul>
+      </div>
+      <!-- /#sidebar-wrapper -->
 
-        <!-- Page Content -->
-        <div id="page-content-wrapper">
-          <div class="container-fluid">
-	    <!-- Loading View -->
-	    <div class="row" ng-show="loading_vis">
-	      <div class="col-lg-12">
-		<h3>{{message}}</h3>
-		<img id="loading" src="images/loading.gif"/>
+      <!-- Page Content -->
+      <div id="page-content-wrapper">
+        <div class="container-fluid">
+	  <!-- Loading View -->
+	  <div class="row" ng-show="loading_vis">
+	    <div class="col-lg-12">
+	      <h3>{{message}}</h3>
+	      <img id="loading" src="images/loading.gif"/>
 	      </div>
 	    </div>
             
-	    <!-- Welcome View -->
-            <div class="row" ng-show="welcome_vis">
-              <div class="col-lg-12">
-                <h1>Welcome!</h1>
-                <p>{{message}}</p>
-                <a href="#" ng-click="pgCreateNotebook()" class="btn btn-default">Create Notebook</a>
-              </div>
+	  <!-- Welcome View -->
+          <div class="row" ng-show="welcome_vis">
+            <div class="col-lg-12">
+              <h1>Welcome!</h1>
+              <p>{{message}}</p>
+              <a href="#" ng-click="pgCreateNotebook()" class="btn btn-default">Create Notebook</a>
             </div>
+          </div>
 
-	    <!-- Notebook View -->
-	    <div class="row nbmenu" ng-show="notebook_vis">
-	      <div class="col-lg-7">
-		<div class="btn-group" role="group" aria-label="...">
-		  <button type="button" ng-class="{'btn':
-						  true,'btn-default':
-						  true,'disabled':
-						  isFirstNote()}"
-			  ng-click="mnPrev()">
-		    <span class="glyphicon glyphicon-arrow-left" aria-hiden="true"></span> Previous</button>
-		  <button type="button" class="btn btn-default" ng-click="mnCreate()"><span class="fa fa-file-text-o fa-1g"></span> Create </button>
-		  <button type="button" class="btn btn-default" ng-click="mnEdit()">
-		    <span class="fa fa-pencil-square-o"></span>
+	  <!-- Notebook View -->
+	  <div class="row nbmenu" ng-show="notebook_vis">
+	    <div class="col-lg-7">
+	      <div class="btn-group" role="group" aria-label="...">
+		<button type="button" ng-class="{'btn':
+						true,'btn-default':
+						true,'disabled':
+						isFirstNote()}"
+			ng-click="mnPrev()">
+		  <span class="glyphicon glyphicon-arrow-left" aria-hiden="true"></span> Previous</button>
+		<button type="button" class="btn btn-default" ng-click="mnCreate()"><span class="fa fa-file-text-o fa-1g"></span> Create </button>
+		<button type="button" class="btn btn-default" ng-click="mnEdit()">
+		  <span class="fa fa-pencil-square-o"></span>
 		    Edit
-		  </button>
-		  <button type="button" ng-class="{'btn' : true, 'btn-default': true, 'disabled': isLastNote()}"  ng-click="mnNext()">
+		</button>
+		<button type="button" ng-class="{'btn' : true, 'btn-default': true, 'disabled': isLastNote()}"  ng-click="mnNext()">
 		    <span class="glyphicon glyphicon-arrow-right"></span>
 		    Next
-		  </button>
-		</div> <!-- btn-group -->
-	      </div> <!-- col-lg-6 -->
-	      <div class="col-lg-4">
-		<div class="input-group">
-		  <input type="text" class="form-control" placeholder="Search for...">
-		  <span class="input-group-btn">
-		    <button class="btn btn-default" type="button">Go!</button>
-		  </span>
-		</div><!-- /input-group -->
-	      </div><!-- /.col-lg-6 -->
-	    </div> <!-- row -->
+		</button>
+	      </div> <!-- btn-group -->
+	    </div> <!-- col-lg-6 -->
+	    <div class="col-lg-4">
+	      <div class="input-group">
+		<input type="text" class="form-control" placeholder="Search for...">
+		<span class="input-group-btn">
+		  <button class="btn btn-default" type="button">Go!</button>
+		</span>
+	      </div><!-- /input-group -->
+	    </div><!-- /.col-lg-6 -->
+	  </div> <!-- row -->
 
-	    <div class="row nbvis" ng-show="notebook_vis">
-	      <div class="col-lg-12">
-		<div id="path">
-		  <a href="#" ng-click="getYears()">{{current}}</a> /
+	  <div class="row nbvis" ng-show="notebook_vis">
+	    <div class="col-lg-12">
+	      <div id="path">
+		  <a href="#" ng-click="getYears()">{{title}}</a> /
 		  <a href="#" ng-click="getMonths(year)">{{year}}</a> /
 		  <a href="#" ng-click="getDays(year, month)">{{month}}</a> /
 		  <a href="#" ng-click="getNotes(year, month, day)"> {{day}}</a> / {{nbtitle}}
