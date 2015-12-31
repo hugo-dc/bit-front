@@ -97,14 +97,14 @@ app.controller('MainController', function($scope, $http) {
 	    $scope.message = "Provide both values";
 	} else {
 	    // ipc.send('create-notebook', args);
-	    $http.get('http://localhost:3000/create-notebook/' + name + '/' + desc).success(function(data){
+	    $http.get(SERVER + 'create-notebook/' + name + '/' + desc).success(function(data){
 
 		if (data.successR == false) {
 		    $scope.toggleVis("create");
 		    $scope.message = data.messageR;
 		}else{
 		    $scope.toggleVis('notebook');
-		    $http.get('http://localhost:3000/get-note-by-nb-name/' + name + '/1').success(function(data){
+		    $http.get(SERVER + 'get-note-by-nb-name/' + name + '/1').success(function(data){
 			document.getElementById('note').innerHTML = data.nHtml;
 			$scope.current = data.parentId;
 			$scope.title   = name;
@@ -164,7 +164,7 @@ app.controller('MainController', function($scope, $http) {
     };
 
     $scope.setNavTitle = function(title) {
-	$scope.navigation = "Notes for " + title + " [Notebook: " + $scope.title + "]";
+	$scope.navigation = "Notes for " + title + " [" + $scope.title + "]";
     }
 
     // Navigate notes
@@ -179,14 +179,9 @@ app.controller('MainController', function($scope, $http) {
 	$scope.toggleVis("navnotes");
 	$scope.current = current;
 
-	for (var i = 0; i <= $scope.notebook.notes.length - 1; i++){
-	    if ($scope.notebook.notes[i].year  == year  &&
-		$scope.notebook.notes[i].month == month &&
-		$scope.notebook.notes[i].day   == day )
-		notes.push({ix: i,
-			    note: $scope.notebook.notes[i]});
-	}
-	$scope.navitem = notes;
+	$http.get(SERVER + "get-notes-by-day/" + $scope.nbook_ix + "/" + year + "/" + month + "/" + day).success(function(data){
+	    $scope.navitem = data;
+	});
     };
 
     $scope.getDays = function(year, month){
@@ -199,25 +194,9 @@ app.controller('MainController', function($scope, $http) {
 	$scope.navyear = null;
 	$scope.navitem = null;
 	$scope.navall  = null;
-
-	for (var i = 0; i <= $scope.notebook.notes.length - 1; i++ ){
-	    if ($scope.notebook.notes[i].year == year &&
-		$scope.notebook.notes[i].month == month ){
-		var ex = false;
-		for (var j=0 ; j < days.length ; j++ ){
-		    if ($scope.notebook.notes[i].day == days[j].day ) {
-			ex = true
-			break;
-		    }
-		}
-		if (!ex) days.push({y : year,
-				   m : month,
-				   day : $scope.notebook.notes[i].day});
-	    }
-	    if ($scope.notebook.notes[i].year > year ||
-		$scope.notebook.notes[i].month > month) break;
-	}
-	$scope.navmonth = days;
+	$http.get(SERVER + "get-days/" + $scope.nbook_ix + "/" + year + "/" + month).success(function(data){
+	    $scope.navmonth = data;
+	})
 	$scope.current = current;
     };
 
@@ -226,28 +205,16 @@ app.controller('MainController', function($scope, $http) {
 	$scope.toggleVis("navnotes");
 	$scope.setNavTitle(year);
 	$scope.current = current;
+	$scope.searchYear = year;
 
 	$scope.navmonth = null;
 	$scope.navitem  = null;
 	$scope.navall   = null;
 
-	var months = [];
-	for (var i=0 ; i < $scope.notebook.notes.length; i++){
-	    if ($scope.notebook.notes[i].year == year) {
-		var ex = false;
-		for (var j=0; j< months.length ; j++ ) {
-		    if ($scope.notebook.notes[i].month == months[j].month){
-			ex = true
-			break;
-		    }
-		}
-		if (!ex) months.push({y: year,
-				      month: $scope.notebook.notes[i].month,
-				      name:  $scope.months[$scope.notebook.notes[i].month - 1]});
-	    }
-	    if ($scope.notebook.notes[i].year > year) break;
-	}
-	$scope.navyear = months;
+	$http.get(SERVER + "get-months/" + $scope.nbook_ix + "/" + year).success(function(data){
+	    $scope.navyear = data;
+	});
+        $scope.current = current;
     };
 
     $scope.getYears = function(){
@@ -259,20 +226,10 @@ app.controller('MainController', function($scope, $http) {
 	$scope.navmonth = null;
 	$scope.navitem  = null;
 	$scope.navyear  = null;
-	
-	var years = [];
 
-	for (var i=0; i < $scope.notebook.notes.length; i++ ) {
-	    var ex = false;
-	    for (var j=0 ; j < years.length ; j++){
-		if ($scope.notebook.notes[i].year == years[j]) {
-		    ex = true;
-		    break;
-		}
-	    }
-	    if(!ex) years.push($scope.notebook.notes[i].year);
-	}
-    	$scope.navall = years;
+	$http.get(SERVER + "get-years/" + $scope.nbook_ix).success(function(data){
+	    $scope.navall = data;
+	});
     }
 
     // Open Note
@@ -285,12 +242,19 @@ app.controller('MainController', function($scope, $http) {
 
     // Notes menu
     $scope.callNote = function(nb,ix) {
-	console.log("Testing callNote:");
-	console.log(nb);
-	console.log(ix);
 	// Get Note using WS
 	$scope.note_ix  = ix;
-	// document.getElementById('note').innerHTML = nb.notes[ix].html;
+	$http.get(SERVER + "get-note/" + nb + "/" + ix).success(function(data){
+	    $scope.toggleVis('notebook');
+	    $scope.markdown = data.nContent;
+	    document.getElementById('note').innerHTML = data.nHtml;
+	    $scope.year = data.ntYear;
+	    $scope.month = data.ntMonth;
+	    $scope.day   = data.ntDay;
+	    $scope.nbtitle = data.nTitle;
+	    $scope.note_ix = data.ntId;
+	    $scope.current = nb;
+	});
 	$scope.message ="";
     }
 
@@ -301,7 +265,7 @@ app.controller('MainController', function($scope, $http) {
     }
 
     $scope.mnNext = function(){
-
+	$scope.callNote($scope.nbook_ix, $scope.note_ix + 1);
     }
     
     $scope.mnCreate = function() {
