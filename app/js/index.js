@@ -119,6 +119,21 @@ app.controller('MainController', function($scope, $http) {
 	    });
 	}
     };
+
+    $scope.getLastNote = function (nbid) {
+	$http.get(SERVER + "get-last-note/" + nbid).success(function(data) {
+	    $scope.toggleVis('notebook');
+	    $scope.markdown = data.nContent;
+	    document.getElementById('note').innerHTML = data.nHtml;
+	    $scope.year     = data.ntYear;
+	    $scope.month    = data.ntMonth;
+	    $scope.day      = data.ntDay;
+	    $scope.nbtitle  = data.nTitle;
+	    $scope.lastNoteId = data.ntId;
+	    $scope.note_ix    = data.ntId;
+	    $scope.current    = $scope.nbook_ix;
+	});	
+    };
     
     $scope.openNotebook = function(nb_name) {
 	$scope.message = "Loading...";
@@ -129,18 +144,7 @@ app.controller('MainController', function($scope, $http) {
 	    $scope.current  = data.nbId;
 	    $scope.title    = data.nbName;
 	    $scope.nbook_ix = data.nbId;
-	    $http.get(SERVER + "get-last-note/" + data.nbId).success(function(data) {
-		$scope.toggleVis('notebook');
-		$scope.markdown = data.nContent;
-		document.getElementById('note').innerHTML = data.nHtml;
-		$scope.year     = data.ntYear;
-		$scope.month    = data.ntMonth;
-		$scope.day      = data.ntDay;
-		$scope.nbtitle  = data.nTitle;
-		$scope.lastNoteId = data.ntId;
-		$scope.note_ix    = data.ntId;
-		$scope.current    = $scope.nbook_ix;
-	    });
+	    $scope.getLastNote(data.nbId);
 	});
     };
 
@@ -526,38 +530,33 @@ app.controller('MainController', function($scope, $http) {
     // Thi function is used to CREATE or UPDATE a note
     $scope.mnViewHtml = function() {
 	var curr = $scope.current;
-	
+	if ($scope.nbtitle == "" && $scope.markdown == "") {
+	    $scope.message = "Provide a note title and content!";
+	    return;
+	}
+	if ( $scope.nbtitle == "") {
+	    $scope.message = "Provide a valid title!";
+	    return;
+	}
+	if ($scope.markdown == "") {
+	    $scope.message = "Note is empty!";
+	    return;
+	}	
 	if ($scope.action == "create_note") {
-	    if ($scope.nbtitle == "" && $scope.markdown == "") {
-		$scope.message = "Provide a note title and content!";
-		return;
-	    }
-	    if ( $scope.nbtitle == "") {
-		$scope.message = "Provide a valid title!";
-		return;
-	    }
-	    if ($scope.markdown == "") {
-		$scope.message = "Note is empty!";
-		return;
-	    }
-	    //ipc.send('create-note', args);
 	    $http.get(SERVER + "create-note/" + $scope.nbook_ix + "/" + $scope.nbtitle + "/" + $scope.markdown).success(function(data) {
 		$scope.message = data.messageR;
-		if(data.successR)
+		if(data.successR){
 		    $scope.toggleVis('notebook');
+		    $scope.getLastNote($scope.nbook_ix);
+		}
 	    });
 	}else {
-	    var args = { "nbix"    : $scope.nbook_ix,
-			 "ntix"    : $scope.note_ix,
-			 "content" : null,
-			 "title"   : null
-		       };
 	    var change = false;
-	    if ($scope.markdown != $scope.lastNote.content) {
+	    if ($scope.markdown != $scope.lastContent) {
 		args.content = $scope.markdown;
 		change = true;
 	    }
-	    if ($scope.nbtitle != $scope.lastNote.title) {
+	    if ($scope.nbtitle != $scope.lastTitle) {
 		args.title = $scope.nbtitle;
 		change = true;
 	    }
