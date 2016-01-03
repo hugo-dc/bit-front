@@ -238,8 +238,12 @@ app.controller('MainController', function($scope, $http) {
 
     // Open Note
     $scope.openNote = function(ix) {
+	console.log("Function openNote");
 	var curr = $scope.current;
 	$scope.toggleVis("notebook");
+	console.log("Calling note...");
+	console.log($scope.nbook_ix);
+	console.log(ix);
 	$scope.callNote($scope.nbook_ix, ix);
 	$scope.current = curr;
     }
@@ -292,6 +296,9 @@ app.controller('MainController', function($scope, $http) {
 	$scope.toggleVis('edit');
 	$scope.current = curr;
 	$scope.message = "";
+	$scope.lastTitle = $scope.nbtitle;
+	$scope.lastContent = $scope.markdown;
+	console.log("Editing note...");
     };
 
     $scope.btnHeader = function() {
@@ -529,6 +536,7 @@ app.controller('MainController', function($scope, $http) {
     
     // Thi function is used to CREATE or UPDATE a note
     $scope.mnViewHtml = function() {
+	console.log("View HTML");
 	var curr = $scope.current;
 	if ($scope.nbtitle == "" && $scope.markdown == "") {
 	    $scope.message = "Provide a note title and content!";
@@ -541,7 +549,7 @@ app.controller('MainController', function($scope, $http) {
 	if ($scope.markdown == "") {
 	    $scope.message = "Note is empty!";
 	    return;
-	}	
+	}
 	if ($scope.action == "create_note") {
 	    $http.get(SERVER + "create-note/" + $scope.nbook_ix + "/" + $scope.nbtitle + "/" + $scope.markdown).success(function(data) {
 		$scope.message = data.messageR;
@@ -552,19 +560,22 @@ app.controller('MainController', function($scope, $http) {
 	    });
 	}else {
 	    var change = false;
-	    if ($scope.markdown != $scope.lastContent) {
-		args.content = $scope.markdown;
+	    if ($scope.markdown != $scope.lastContent || $scope.nbtitle != $scope.lastTitle) {
 		change = true;
 	    }
-	    if ($scope.nbtitle != $scope.lastTitle) {
-		args.title = $scope.nbtitle;
-		change = true;
-	    }
-	
 	    if (change){
 		$scope.toggleVis('loading');
 		$scope.current = curr;
-		ipc.send('update-note', args);
+		$http.get(SERVER + "update-note/" + $scope.note_ix + "/" + $scope.nbtitle + "/" + $scope.markdown).success(function(data){
+		    $scope.message = data.messageR;
+		    console.log(data.successR);
+		    console.log($scope.note_ix);
+		    console.log(data.successR);
+		    if(data.successR){
+			console.log("Entering...");
+			$scope.openNote($scope.note_ix);
+		    }
+		});
 	    }else {
 		$scope.toggleVis('notebook');
 		$scope.current = curr;
