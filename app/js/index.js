@@ -551,9 +551,21 @@ app.controller('MainController', function($scope, $http) {
 	    return;
 	}
 	if ($scope.action == "create_note") {
-	    $http.get(SERVER + "create-note/" + $scope.nbook_ix + "/" + $scope.nbtitle + "/" + $scope.markdown).success(function(data) {
-		$scope.message = data.messageR;
-		if(data.successR){
+	    var req = {
+		method: 'POST',
+		url: SERVER + 'create-note',
+		headers: {
+		    'Content-Type' : undefined
+		},
+		data: {
+		    crNbId   : $scope.nbook_ix,
+		    crTitle : $scope.nbtitle,
+		    crContent : $scope.markdown
+		}
+	    }
+	    $http(req).then(function(result){
+		$scope.message = result.data.messageR;
+		if(result.data.successR){
 		    $scope.toggleVis('notebook');
 		    $scope.getLastNote($scope.nbook_ix);
 		}
@@ -563,18 +575,28 @@ app.controller('MainController', function($scope, $http) {
 	    if ($scope.markdown != $scope.lastContent || $scope.nbtitle != $scope.lastTitle) {
 		change = true;
 	    }
+	    console.log("Change...");
 	    if (change){
 		$scope.toggleVis('loading');
 		$scope.current = curr;
-		$http.get(SERVER + "update-note/" + $scope.note_ix + "/" + $scope.nbtitle + "/" + $scope.markdown).success(function(data){
-		    $scope.message = data.messageR;
-		    console.log(data.successR);
-		    console.log($scope.note_ix);
-		    console.log(data.successR);
-		    if(data.successR){
+		var req = {
+		    method: 'POST',
+		    url: SERVER + 'update-note',
+		    headers: {
+			'Content-Type' : undefined
+		    },
+		    data: {
+			updId    : $scope.note_ix,
+			updTitle : $scope.nbtitle,
+			updContent : $scope.markdown
+		    }
+		};
+		$http(req).then(function(result){
+		    $scope.message = result.data.messageR;
+		    if(result.data.successR){
 			console.log("Entering...");
 			$scope.openNote($scope.note_ix);
-		    }
+		    }		    
 		});
 	    }else {
 		$scope.toggleVis('notebook');
