@@ -249,31 +249,36 @@ app.controller('MainController', function($scope, $http) {
     }
 
     // Notes menu
+    $scope.noteReceived = function(data)
+    {
+	$scope.toggleVis('notebook');
+	$scope.markdown = data.nContent;
+	document.getElementById('note').innerHTML = data.nHtml;
+	$scope.year = data.ntYear;
+	$scope.month = data.ntMonth;
+	$scope.day   = data.ntDay;
+	$scope.nbtitle = data.nTitle;
+	$scope.note_ix = data.ntId;
+	$scope.current = data.parentId;	
+    }
+    
     $scope.callNote = function(nb,ix) {
 	// Get Note using WS
-	$scope.note_ix  = ix;
-	$http.get(SERVER + "get-note/" + nb + "/" + ix).success(function(data){
-	    $scope.toggleVis('notebook');
-	    $scope.markdown = data.nContent;
-	    document.getElementById('note').innerHTML = data.nHtml;
-	    $scope.year = data.ntYear;
-	    $scope.month = data.ntMonth;
-	    $scope.day   = data.ntDay;
-	    $scope.nbtitle = data.nTitle;
-	    $scope.note_ix = data.ntId;
-	    $scope.current = nb;
-	});
+//	$scope.note_ix  = ix;
+	$http.get(SERVER + "get-note/" + nb + "/" + ix).success($scope.noteReceived);
 	$scope.message ="";
     }
 
     // TODO: Menu Previ is not working, fix callNote, create Haskell WS
     $scope.mnPrev = function() {
-	if ($scope.note_ix > 0)
-	    $scope.callNote($scope.nbook_ix, $scope.note_ix - 1);	    
+	if ($scope.note_ix > 0){
+	    $http.get(SERVER + "get-prev/" + $scope.nbook_ix + "/" + $scope.note_ix).success($scope.noteReceived);
+	}
     }
 
     $scope.mnNext = function(){
 	$scope.callNote($scope.nbook_ix, $scope.note_ix + 1);
+	$http.get(SERVER + "get-next/" + $scope.nbook_ix + "/" + $scope.note_ix).success($scope.noteReceived);
     }
     
     $scope.mnCreate = function() {
