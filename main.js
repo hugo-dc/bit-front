@@ -9,7 +9,7 @@ var startBackend = function()
     var fs = require('fs');
     var child_process = require('child_process');
     console.log("Starting backend process...");
-    var ch = child_process.spawn(process.cwd() + "\\bndb.exe", [], {cwd: process.cwd() });
+    var ch = child_process.spawn(process.cwd() + "\\bndb.bat", [], {cwd: process.cwd() });
 }
 
 // Report crashes to our server.
