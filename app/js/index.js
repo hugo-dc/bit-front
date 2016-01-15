@@ -596,12 +596,19 @@ app.controller('MainController', function($scope, $http) {
 			updContent : $scope.markdown
 		    }
 		};
+		
 		$http(req).then(function(result){
 		    $scope.message = result.data.messageR;
 		    if(result.data.successR){
 			console.log("Entering...");
 			$scope.openNote($scope.note_ix);
 		    }		    
+		}, function(response){
+		    console.log("ERROR:");
+		    console.log(JSON.stringify(response));
+		    $scope.message = response.data;
+		    $scope.toggleVis('notebook');
+		    
 		});
 	    }else {
 		$scope.toggleVis('notebook');
