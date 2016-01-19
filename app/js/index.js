@@ -415,7 +415,7 @@ app.controller('MainController', function($scope, $http) {
 	var added = 0;
 	if ($scope.st != undefined) {
 	    newVal = tx.value.substring(0, $scope.st);
-	    newVal = newVal + "![](../../../bin/images/" + ssid + ".png) ";
+	    newVal = newVal + "![](../bin/images/" + ssid + ".png) ";
 	    added = 37;
 	}
 	newVal = newVal + tx.value.substring($scope.en, tx.value.length -1);

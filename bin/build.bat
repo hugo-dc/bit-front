@@ -1,5 +1,4 @@
 cd bin
-chcp 65001
 site clean
+chcp 65001
 site build
-
