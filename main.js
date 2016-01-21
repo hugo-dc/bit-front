@@ -3,13 +3,21 @@ var BrowserWindow = require('browser-window'); // Module to create native browse
 
 // communicates UI with backend
 var ipc = require('ipc');
+var child_process = require('child_process');
 
 var startBackend = function()
 {
     var fs = require('fs');
-    var child_process = require('child_process');
-    console.log("Starting backend process...");
-    var ch = child_process.spawn(process.cwd() + "\\bndb.bat", [], {cwd: process.cwd() });
+
+    var log = "INFO: No tasks";
+    child_process.exec("tasklist /NH /FI \"imagename eq bndb.exe\"", function(error, stdout, stderr){
+	if (stdout.substring(0,14) === log) {
+	    console.log("Starting backend process...");
+	    var ch = child_process.spawn(process.cwd() + "\\bndb.bat", [], {cwd: process.cwd() });
+	}else{
+	    console.log("Backend already running!");
+	}
+    });
 }
 
 // Report crashes to our server.
@@ -19,13 +27,32 @@ require('crash-reporter').start();
 // be closed automatically when the Javascript is GCed
 var mainWindow = null;
 
+
+function quit(){
+    console.log("Getting Process ID...");
+    kcom="taskkill /IM bndb.exe /T /F";
+    console.log(kcom);
+    var ch = child_process.exec(kcom, function(error, stdout, stderr){
+	console.log("Log...");
+	console.log(error);
+	console.log(stdout);
+	console.log(stderr);
+    });
+}
+
 // Quit when all windows are closed.
 app.on('window-all-closed', function() {
-  // On OS X it is common for applications and their menu bar
-  // to stay active until the user quits explicitly with Cmd + Q 
-  if (process.platform != 'darwin') {
-    app.quit();
-  }
+    // On OS X it is common for applications and their menu bar
+    // to stay active until the user quits explicitly with Cmd + Q 
+    if (process.platform != 'darwin') {
+	app.quit();
+    }
+
+    quit();
+});
+
+app.on('before-quit', function(event){
+    quit();
 });
 
 // Start Haskell/Scotty Backend!
