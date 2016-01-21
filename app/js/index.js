@@ -104,6 +104,8 @@ app.controller('MainController', function($scope, $http) {
 		    $scope.message = data.messageR;
 		}else{
 		    $scope.toggleVis('notebook');
+		    $http.get(SERVER + 'get-notebooks').success(function(data){
+			$scope.notebooks = data;
 		    $http.get(SERVER + 'get-note-by-nb-name/' + name + '/1').success(function(data){
 			document.getElementById('note').innerHTML = data.nHtml;
 			$scope.current = data.parentId;
@@ -114,6 +116,7 @@ app.controller('MainController', function($scope, $http) {
 			$scope.month    = data.ntMonth;
 			$scope.day      = data.ntDay;
 			$scope.lastNote = data.ntId;
+		    });			
 		    });
 		}
 	    });
