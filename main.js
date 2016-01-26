@@ -7,8 +7,8 @@ var child_process = require('child_process');
 
 var startBackend = function()
 {
-    var fs = require('fs');
-
+//    var fs = require('fs');
+    quit();
     var log = "INFO: No tasks";
     child_process.exec("tasklist /NH /FI \"imagename eq bndb.exe\"", function(error, stdout, stderr){
 	if (stdout.substring(0,14) === log) {
@@ -16,6 +16,8 @@ var startBackend = function()
 	    var ch = child_process.spawn(process.cwd() + "\\bndb.bat", [], {cwd: process.cwd() });
 	}else{
 	    console.log("Backend already running!");
+	    quit();
+	    startBackend();
 	}
     });
 }
@@ -29,15 +31,9 @@ var mainWindow = null;
 
 
 function quit(){
-    console.log("Getting Process ID...");
-    kcom="taskkill /IM bndb.exe /T /F";
-    console.log(kcom);
-    var ch = child_process.exec(kcom, function(error, stdout, stderr){
-	console.log("Log...");
-	console.log(error);
-	console.log(stdout);
-	console.log(stderr);
-    });
+    var kcom="\\killer.exe";
+    console.log(process.cwd() + kcom);
+    var ch = child_process.spawn(process.cwd() + kcom, [], {cwd: process.cwd()});
 }
 
 // Quit when all windows are closed.

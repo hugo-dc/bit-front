@@ -1,3 +1,4 @@
+
 var app = angular.module('Beenotes', []);
 var ipc = require('ipc');
 var SERVER = "http://localhost:3000/";
@@ -419,7 +420,7 @@ app.controller('MainController', function($scope, $http) {
 	if ($scope.st != undefined) {
 	    newVal = tx.value.substring(0, $scope.st);
 	    newVal = newVal + "![](../bin/images/" + ssid + ".png) ";
-	    added = 37;
+	    added = 39;
 	}
 	newVal = newVal + tx.value.substring($scope.en, tx.value.length -1);
 	tx.value = newVal;
