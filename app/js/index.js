@@ -179,7 +179,9 @@ app.controller('MainController', function($scope, $http) {
     $scope.getNotes = function(year, month, day){
 	var current = $scope.current;
 	var notes = [];
-
+	$scope.year = year;
+	$scope.month = month;
+	$scope.day = day;
 	$scope.navyear = null;
 	$scope.navmonth = null;
 
@@ -194,6 +196,8 @@ app.controller('MainController', function($scope, $http) {
 
     $scope.getDays = function(year, month){
 	var current = $scope.current;
+	$scope.year = year;
+	$scope.month = month;
 	$scope.toggleVis("navnotes");
 	$scope.setNavTitle($scope.months[month - 1] + ", " + year);
 	$scope.current = current;
@@ -210,6 +214,7 @@ app.controller('MainController', function($scope, $http) {
 
     $scope.getMonths = function(year){
 	var current = $scope.current;
+	$scope.year = year;
 	$scope.toggleVis("navnotes");
 	$scope.setNavTitle(year);
 	$scope.current = current;
@@ -273,7 +278,6 @@ app.controller('MainController', function($scope, $http) {
 	$scope.message ="";
     }
 
-    // TODO: Menu Previ is not working, fix callNote, create Haskell WS
     $scope.mnPrev = function() {
 	if ($scope.note_ix > 0){
 	    $http.get(SERVER + "get-prev/" + $scope.nbook_ix + "/" + $scope.note_ix).success($scope.noteReceived);

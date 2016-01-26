@@ -226,12 +226,12 @@
 
 		<ul>
 		  <li ng-repeat="item in navitem">
-		    <a href="#" ng-click="openNote(item.ix);">
-		      {{item}}
+		    <a href="#" ng-click="openNote(item.ntId);">
+		      {{item.nTitle}}
 		    </a>
 		  </li>
 		  <li ng-repeat="item in navmonth">
-		    <a href="#" ng-click="getNotes(item.y, item.m, item.day);">
+		    <a href="#" ng-click="getNotes(year, month, item);">
 		      {{item}}
 		    </a>
 		  </li>

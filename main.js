@@ -7,8 +7,6 @@ var child_process = require('child_process');
 
 var startBackend = function()
 {
-//    var fs = require('fs');
-    quit();
     var log = "INFO: No tasks";
     child_process.exec("tasklist /NH /FI \"imagename eq bndb.exe\"", function(error, stdout, stderr){
 	if (stdout.substring(0,14) === log) {
@@ -16,7 +14,7 @@ var startBackend = function()
 	    var ch = child_process.spawn(process.cwd() + "\\bndb.bat", [], {cwd: process.cwd() });
 	}else{
 	    console.log("Backend already running!");
-	    quit();
+	    kill();
 	    startBackend();
 	}
     });
@@ -30,7 +28,7 @@ require('crash-reporter').start();
 var mainWindow = null;
 
 
-function quit(){
+function kill(){
     var kcom="\\killer.exe";
     console.log(process.cwd() + kcom);
     var ch = child_process.spawn(process.cwd() + kcom, [], {cwd: process.cwd()});
@@ -43,12 +41,6 @@ app.on('window-all-closed', function() {
     if (process.platform != 'darwin') {
 	app.quit();
     }
-
-    quit();
-});
-
-app.on('before-quit', function(event){
-    quit();
 });
 
 // Start Haskell/Scotty Backend!
