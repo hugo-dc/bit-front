@@ -43,6 +43,10 @@
     background-color: #efefef ; /*  #81A9CC ;  #E66155; */
 }
 
+.delete_note {
+    margin-top: 30px;
+}
+
 .code {
     margin-top: 10px;
     padding-top: 5px;

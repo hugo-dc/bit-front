@@ -1,5 +1,5 @@
 
-var app = angular.module('Beenotes', []);
+var app = angular.module('Bitacorapp', []);
 var ipc = require('ipc');
 var SERVER = "http://localhost:3000/";
 
@@ -41,6 +41,7 @@ app.controller('MainController', function($scope, $http) {
     $scope.link = "";
     $scope.lnk_title ="";
     $scope.debug = "debug";
+    $scope.delete_note = false;
 
     $scope.months = ["January", "February", "March",
 		     "April",   "May"     , "June",
@@ -149,6 +150,7 @@ app.controller('MainController', function($scope, $http) {
 	    $scope.title    = data.nbName;
 	    $scope.nbook_ix = data.nbId;
 	    $scope.getLastNote(data.nbId);
+	    $scope.message = "";
 	});
     };
 
@@ -313,6 +315,20 @@ app.controller('MainController', function($scope, $http) {
 	$scope.lastContent = $scope.markdown;
 	console.log("Editing note...");
     };
+
+    $scope.mnDelete = function() {
+	console.log("Delete note?");
+	$scope.delete_note = true;
+    }
+
+    $scope.delCancel = function() {
+	$scope.delete_note = false;
+    }
+
+    $scope.delAccept = function() {
+	$scope.delete_note = false;
+	$scope.message = "Note deleted!";
+    }
 
     $scope.btnHeader = function() {
 	var tx = document.getElementById("editor");
@@ -551,6 +567,7 @@ app.controller('MainController', function($scope, $http) {
     $scope.mnViewHtml = function() {
 	console.log("View HTML");
 	var curr = $scope.current;
+	
 	if ($scope.nbtitle == "" && $scope.markdown == "") {
 	    $scope.message = "Provide a note title and content!";
 	    return;
@@ -564,6 +581,9 @@ app.controller('MainController', function($scope, $http) {
 	    return;
 	}
 	if ($scope.action == "create_note") {
+	    $scope.toggleVis('loading');
+	    $scope.message = "Creating note...";
+	    $scope.current = curr;
 	    var req = {
 		method: 'POST',
 		url: SERVER + 'create-note',
@@ -591,6 +611,7 @@ app.controller('MainController', function($scope, $http) {
 	    console.log("Change...");
 	    if (change){
 		$scope.toggleVis('loading');
+		$scope.message = "Updating note...";
 		$scope.current = curr;
 		var req = {
 		    method: 'POST',
