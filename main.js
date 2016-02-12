@@ -1,17 +1,24 @@
 var app = require('app'); // Module to control application life
 var BrowserWindow = require('browser-window'); // Module to create native browser window.
 
+var dev = true;
+
 // communicates UI with backend
 var ipc = require('ipc');
 var child_process = require('child_process');
 
 var startBackend = function()
 {
+    
     var log = "INFO: No tasks";
     child_process.exec("tasklist /NH /FI \"imagename eq bndb.exe\"", function(error, stdout, stderr){
 	if (stdout.substring(0,14) === log) {
-	    console.log("Starting backend process...");
-	    var ch = child_process.spawn(process.cwd() + "\\bndb.bat", [], {cwd: process.cwd() });
+	    if (!dev){
+		console.log("Starting backend process...");
+		var ch = child_process.spawn(process.cwd() + "\\bndb.bat", [], {cwd: process.cwd() });
+	    }else{
+		console.log("Waiting for backend...");
+	    }
 	}else{
 	    console.log("Backend already running!");
 	    kill();
@@ -48,6 +55,7 @@ startBackend();
 
 // This method will be called when electron has finished 
 // initialization and is ready to create browser windows.
+app.setAppUserModelId('BitacorApp');
 app.on('ready', function() {
     // Create the browser window.
     mainWindow = new BrowserWindow({ width: 800, height: 600});

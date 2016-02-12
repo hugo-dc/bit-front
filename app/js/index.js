@@ -274,8 +274,6 @@ app.controller('MainController', function($scope, $http) {
     }
     
     $scope.callNote = function(nb,ix) {
-	// Get Note using WS
-//	$scope.note_ix  = ix;
 	$http.get(SERVER + "get-note/" + nb + "/" + ix).success($scope.noteReceived);
 	$scope.message ="";
     }
@@ -284,11 +282,13 @@ app.controller('MainController', function($scope, $http) {
 	if ($scope.note_ix > 0){
 	    $http.get(SERVER + "get-prev/" + $scope.nbook_ix + "/" + $scope.note_ix).success($scope.noteReceived);
 	}
+	$scope.message ="";
     }
 
     $scope.mnNext = function(){
 	$scope.callNote($scope.nbook_ix, $scope.note_ix + 1);
 	$http.get(SERVER + "get-next/" + $scope.nbook_ix + "/" + $scope.note_ix).success($scope.noteReceived);
+	$scope.message ="";
     }
     
     $scope.mnCreate = function() {
@@ -303,6 +303,7 @@ app.controller('MainController', function($scope, $http) {
 
 	$scope.current = curr;
 	$scope.message = "";
+
     };
     
     $scope.mnEdit = function() {
@@ -319,15 +320,23 @@ app.controller('MainController', function($scope, $http) {
     $scope.mnDelete = function() {
 	console.log("Delete note?");
 	$scope.delete_note = true;
+	$scope.message ="";	
     }
 
     $scope.delCancel = function() {
 	$scope.delete_note = false;
+	$scope.message ="";	
     }
 
     $scope.delAccept = function() {
 	$scope.delete_note = false;
-	$scope.message = "Note deleted!";
+	$http.get(SERVER + "delete-note/" + $scope.note_ix).success(function(data) {
+	    $scope.message = data.messageR;
+	    $scope.mnPrev();
+	    // TODO: Wee need to check what is last note and first note again
+	}).error(function (data) {
+	    $scope.message = data;
+	});;
     }
 
     $scope.btnHeader = function() {
