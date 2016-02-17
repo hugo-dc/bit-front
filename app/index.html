@@ -9,7 +9,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Bitacorapp - {{title}} </title>
+    <title>BitacorApp - {{title}} </title>
 
     <!-- Bootstrap Core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -37,7 +37,7 @@
       <div id="sidebar-wrapper">
         <ul class="sidebar-nav">
           <li class="sidebar-brand">
-            <a href="#">Bitacorapp</a>
+            <a href="#">BitacorApp [{{note_ix}}]</a>
           </li>
           <li>
             <a ng-class="{'active': isActive('index')}" href="#" ng-click="pgHome();">
@@ -60,6 +60,7 @@
 	    </a>
           </li>
         </ul>
+
       </div>
       <!-- /#sidebar-wrapper -->
 
@@ -96,7 +97,7 @@
 			aria-hiden="true"></span> Previous</button>
 		<button type="button" class="btn btn-default"
 			ng-click="mnFav()">
-		  <span class="fa fa-star-o"></span> Favorite</button>
+		  <span ng-class="{'fa' : true, 'fa-star-o': isNotFav(), 'fa-star': isFav()}"></span> Favorite</button>
 		<button type="button" class="btn btn-default" ng-click="mnCreate()"><span class="fa fa-file-text-o fa-1g"></span> Create </button>
 		<button type="button" class="btn btn-default" ng-click="mnEdit()">
 		  <span class="fa fa-pencil-square-o"></span>

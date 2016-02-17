@@ -42,6 +42,7 @@ app.controller('MainController', function($scope, $http) {
     $scope.lnk_title ="";
     $scope.debug = "debug";
     $scope.delete_note = false;
+    $scope.favorite = false; // Current note is favorite?
 
     $scope.months = ["January", "February", "March",
 		     "April",   "May"     , "June",
@@ -83,7 +84,10 @@ app.controller('MainController', function($scope, $http) {
 	}
 	if (name == "loading")  $scope.loading_vis  = true;
 	if (name == "search")   $scope.search_vis   = true;
-	if (name == "notebook") $scope.notebook_vis = true;
+	if (name == "notebook") {
+	    $scope.updateFav();
+	    $scope.notebook_vis = true;
+	}
 	if (name == "edit")     $scope.edit_vis     = true;
 	if (name == "ntcreate") $scope.ntcreate_vis = true;
 	if (name == "navnotes") $scope.navnotes_vis = true;
@@ -108,6 +112,7 @@ app.controller('MainController', function($scope, $http) {
 		    $scope.toggleVis('notebook');
 		    $http.get(SERVER + 'get-notebooks').success(function(data){
 			$scope.notebooks = data;
+			// TODO: hardcode initial note
 		    $http.get(SERVER + 'get-note-by-nb-name/' + name + '/1').success(function(data){
 			document.getElementById('note').innerHTML = data.nHtml;
 			$scope.current = data.parentId;
@@ -172,6 +177,24 @@ app.controller('MainController', function($scope, $http) {
 	    return true;
 	return false;
     };
+
+    $scope.isFav = function() {
+	return $scope.favorite;
+    }
+
+    $scope.updateFav = function (){
+	console.log("Check if favorite...");
+	$http.get(SERVER + "is-fav/" + $scope.note_ix).success(function (data){
+	    $scope.favorite = data.successR;
+	}).error(function(data){
+	    $scope.updateFav();
+	});
+
+    }
+
+    $scope.isNotFav = function() {
+	return (!$scope.favorite);
+    }
 
     $scope.setNavTitle = function(title) {
 	$scope.navigation = "Notes for " + title + " [" + $scope.title + "]";
@@ -255,7 +278,7 @@ app.controller('MainController', function($scope, $http) {
 	console.log("Calling note...");
 	console.log($scope.nbook_ix);
 	console.log(ix);
-	$scope.callNote($scope.nbook_ix, ix);
+	$scope.callNote(ix);
 	$scope.current = curr;
     }
 
@@ -270,23 +293,43 @@ app.controller('MainController', function($scope, $http) {
 	$scope.day   = data.ntDay;
 	$scope.nbtitle = data.nTitle;
 	$scope.note_ix = data.ntId;
-	$scope.current = data.parentId;	
+	$scope.current = data.parentId;
+	$scope.updateFav();
     }
     
-    $scope.callNote = function(nb,ix) {
-	$http.get(SERVER + "get-note/" + nb + "/" + ix).success($scope.noteReceived);
+    $scope.callNote = function(ix) {
+	$http.get(SERVER + "get-note/" + ix).success($scope.noteReceived);
 	$scope.message ="";
     }
 
     $scope.mnPrev = function() {
+	// Instead of hardcode 0, set a variable (filled from backend)
 	if ($scope.note_ix > 0){
 	    $http.get(SERVER + "get-prev/" + $scope.nbook_ix + "/" + $scope.note_ix).success($scope.noteReceived);
 	}
 	$scope.message ="";
     }
 
+    $scope.mnFav = function() {
+	if ($scope.favorite){ // UnFav
+	    $http.get(SERVER + "unfav-note/" + $scope.note_ix).success(function (data){
+		$scope.message = data.messageR;
+		$scope.favorite = false;
+	    }).error(function(data){
+		$scope.message = data;
+	    });
+	}else { // Fav note
+	    $http.get(SERVER + "fav-note/" + $scope.note_ix).success(function (data){
+		$scope.message = data.messageR;
+		$scope.favorite = true;
+	    }).error(function(data){
+		$scope.message = data;
+	    });
+	}
+    }
+
     $scope.mnNext = function(){
-	$scope.callNote($scope.nbook_ix, $scope.note_ix + 1);
+	$scope.callNote($scope.note_ix + 1);
 	$http.get(SERVER + "get-next/" + $scope.nbook_ix + "/" + $scope.note_ix).success($scope.noteReceived);
 	$scope.message ="";
     }
@@ -473,7 +516,7 @@ app.controller('MainController', function($scope, $http) {
 	    newVal = newVal + "\n```" + lg.value + "\n" + cd.value + "\n```";
 	    added = lg.value.length + cd.value.length + 9;
 	}
-	newVal = newVal + tx.value.substring($scope.en, tx.value.length -1);
+	newVal = newVal + tx.value.substring($scope.en, tx.value.length);
 	tx.value = newVal;
 	$scope.markdown = newVal;
 	tx.setSelectionRange($scope.en + added, $scope.en + added);
@@ -505,7 +548,7 @@ app.controller('MainController', function($scope, $http) {
 		added = $scope.link.length * 2;
 	    }
 	    added+= 5;
-	    newVal = newVal + tx.value.substring($scope.en, tx.value.length - 1);
+	    newVal = newVal + tx.value.substring($scope.en, tx.value.length);
 	    tx.value = newVal;
 	    $scope.markdown = newVal;
 	}
@@ -662,21 +705,12 @@ var getScope = function() {
     return sc;
 };
 
-/*
-ipc.on('notebook-exists', function() {
-    var sc = getScope();
-    sc.$apply(function() {
-	sc.toggleVis("create");
-	sc.message =  "Notebook already exists!";
-    });
-});
-*/
-
 // This event is called when a new notebook is created
 ipc.on('notebook-ready', function(data) {
     var sc = getScope();
     var lastNB = data.nbs[data.nb_ix];
     document.getElementById('note').innerHTML = lastNB.notes[data.nt_ix].html;
+
     sc.$apply(function() {
 	sc.notebooks = data.nbs;
 	sc.toggleVis('notebook');
