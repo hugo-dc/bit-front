@@ -1,6 +1,7 @@
 var app = require('app'); // Module to control application life
 var BrowserWindow = require('browser-window'); // Module to create native browser window.
 
+
 var dev = true;
 
 // communicates UI with backend
@@ -9,22 +10,21 @@ var child_process = require('child_process');
 
 var startBackend = function()
 {
-    
     var log = "INFO: No tasks";
-    child_process.exec("tasklist /NH /FI \"imagename eq bndb.exe\"", function(error, stdout, stderr){
-	if (stdout.substring(0,14) === log) {
-	    if (!dev){
+
+    // Only kill bndb.exe if it's running on Prod"
+    if (!dev){
+	child_process.exec("tasklist /NH /FI \"imagename eq bndb.exe\"", function(error, stdout, stderr){
+	    if (stdout.substring(0,14) === log) {
 		console.log("Starting backend process...");
 		var ch = child_process.spawn(process.cwd() + "\\bndb.bat", [], {cwd: process.cwd() });
 	    }else{
-		console.log("Waiting for backend...");
+		console.log("Backend already running!");
+		kill();
+		startBackend();
 	    }
-	}else{
-	    console.log("Backend already running!");
-	    kill();
-	    startBackend();
-	}
-    });
+	});
+    }
 }
 
 // Report crashes to our server.
@@ -58,8 +58,21 @@ startBackend();
 app.setAppUserModelId('BitacorApp');
 app.on('ready', function() {
     // Create the browser window.
-    mainWindow = new BrowserWindow({ width: 800, height: 600});
+    mainWindow = new BrowserWindow({
+	width: 800,
+	height: 600,
+	title: "BitacorApp",
+	icon:  "bitmap.png"
+    });
+
     mainWindow.loadUrl('file://' + __dirname + '/app/index.html');
+
+    var webContents = mainWindow.webContents;
+
+    webContents.on('new-window', function(event, url){
+	event.preventDefault();
+	child_process.exec("start " + url);
+    });
 
     mainWindow.maximize();
 

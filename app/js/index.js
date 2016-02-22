@@ -1,33 +1,43 @@
-
+/************************************************************************
+* Author: Hugo De la cruz
+* August 2015 - 2016
+*------------------------------------------------------------------------
+* All App is contained in the MainController
+* In this controller the following Function Categories exists:
+*
+*     - Initialization Logic
+*     - Main Menu Logic
+*     - Toggle Visualization
+*     - Create new Notebook
+*     - UI Functions
+*     - Node Address Functions
+*     - Notes Main Menu
+*     - Notes Main Menu Helpers
+*     - Notes Inferior Menu
+*     - Notes Inferior Menu Helpers
+*     - Backend Functions
+*************************************************************************/
 var app = angular.module('Bitacorapp', []);
 var ipc = require('ipc');
-var SERVER = "http://localhost:3000/";
+
+var dev = true;
+
+if (dev)
+    var SERVER = "http://localhost:3001/";
+else
+    var SERVER = "http://localhost:3000/";
 
 app.controller('MainController', function($scope, $http) {
-    $http.get(SERVER + "api-ready").success(function(data) {
-	$scope.message = data.messageR;
-    }).error(function (data) {
-	$scope.message = "ERROR!: API is not ready!";
-    });
-   
-    $http.get(SERVER + "get-notebooks").success(function(data){
-	$scope.toggleVis('index');
-	$scope.notebooks = data;
-	if (data.length === 0) {
-	    $scope.message = "You can start creating your first notebook!";
-	}else{
-	    $scope.message = "You have a total of " + data.length + " notebooks!";   
-	}
-    });
-    
+
+    // Global Variables
     $scope.title = "Personal Notes";
     $scope.loading_vis = true;
     $scope.welcome_vis = false;
     $scope.createn_vis = false;
     $scope.current = "index";
     $scope.lastNote = null;
-    $scope.markdown = "";
     $scope.nbook_ix = null;
+    $scope.note_ix = 0;
     $scope.nbtitle = "";
     $scope.action = null;
     $scope.year = null;
@@ -43,14 +53,47 @@ app.controller('MainController', function($scope, $http) {
     $scope.debug = "debug";
     $scope.delete_note = false;
     $scope.favorite = false; // Current note is favorite?
+    $scope.navitem = null;
 
+    
     $scope.months = ["January", "February", "March",
 		     "April",   "May"     , "June",
 		     "July",    "August",   "September",
 		     "October", "November", "December"];
-    
-    $scope.navitem = null;
 
+    /*-------------------------------------------------------------------*
+    /* Initialization Logic
+    /*-------------------------------------------------------------------*/    
+    $scope.initializeServer = function() {
+	$http.get(SERVER + "api-ready").success(function(data) {
+	    $scope.message = data.messageR;
+	}).error(function (data) {
+	    $scope.message = "ERROR: Server cannot be started please close BitacorApp and try again.";
+	});	
+    }
+
+
+    $scope.initializeNotebooks = function () {
+	$http.get(SERVER + "get-notebooks").success(function(data){
+	    $scope.toggleVis('index');
+	    $scope.notebooks = data;
+	    if (data.length === 0) {
+		$scope.message = "You can start creating your first notebook!";
+	    }else{
+		$scope.message = "You have a total of " + data.length + " notebooks!";   
+	    }
+	});
+    }
+    
+    $scope.initializeApp = function() {
+	$scope.message = "Connecting to backend server...";
+	$scope.initializeServer();
+	$scope.initializeNotebooks();
+    }
+
+    /*-------------------------------------------------------------------*
+    /* Main Menu Logic
+    /*-------------------------------------------------------------------*/    
     $scope.pgHome = function() {
 	$scope.message = "";
 	$scope.toggleVis('index');
@@ -64,6 +107,9 @@ app.controller('MainController', function($scope, $http) {
 	$scope.toggleVis('search');
     };
 
+    /*-------------------------------------------------------------------*
+      Toggle Visualization
+      -------------------------------------------------------------------*/
     $scope.toggleVis = function(name) {
 	$scope.current = name;
 	
@@ -72,8 +118,6 @@ app.controller('MainController', function($scope, $http) {
         $scope.loading_vis  = false;
         $scope.search_vis   = false;
         $scope.notebook_vis = false;
-	$scope.edit_vis     = false;
-	$scope.ntcreate_vis = false;
 	$scope.navnotes_vis = false;
 
 	if (name == "index")  $scope.welcome_vis = true;
@@ -88,11 +132,14 @@ app.controller('MainController', function($scope, $http) {
 	    $scope.updateFav();
 	    $scope.notebook_vis = true;
 	}
-	if (name == "edit")     $scope.edit_vis     = true;
+//	if (name == "edit")     $scope.edit_vis     = true;
 	if (name == "ntcreate") $scope.ntcreate_vis = true;
 	if (name == "navnotes") $scope.navnotes_vis = true;
     };
 
+    /*-------------------------------------------------------------------*
+      Notebook Management Logic
+      -------------------------------------------------------------------*/
     $scope.createNotebook = function (name, desc) {
 	$scope.toggleVis("loading");
 	var args = { "name": name,
@@ -102,7 +149,6 @@ app.controller('MainController', function($scope, $http) {
 	{
 	    $scope.message = "Provide both values";
 	} else {
-	    // ipc.send('create-notebook', args);
 	    $http.get(SERVER + 'create-notebook/' + name + '/' + desc).success(function(data){
 
 		if (data.successR == false) {
@@ -112,12 +158,10 @@ app.controller('MainController', function($scope, $http) {
 		    $scope.toggleVis('notebook');
 		    $http.get(SERVER + 'get-notebooks').success(function(data){
 			$scope.notebooks = data;
-			// TODO: hardcode initial note
 		    $http.get(SERVER + 'get-note-by-nb-name/' + name + '/1').success(function(data){
-			document.getElementById('note').innerHTML = data.nHtml;
+			document.getElementById('note').innerHTML = data.nContent;
 			$scope.current = data.parentId;
 			$scope.title   = name;
-			$scope.markdown = data.nContent;
 			$scope.nbtitle  = data.nTitle;
 			$scope.year     = data.ntYear;
 			$scope.month    = data.ntMonth;
@@ -130,11 +174,12 @@ app.controller('MainController', function($scope, $http) {
 	}
     };
 
+
     $scope.getLastNote = function (nbid) {
 	$http.get(SERVER + "get-last-note/" + nbid).success(function(data) {
 	    $scope.toggleVis('notebook');
-	    $scope.markdown = data.nContent;
-	    document.getElementById('note').innerHTML = data.nHtml;
+	    document.getElementById('note').innerHTML = data.nContent;
+	    document.getElementById('nbtitle').innerHTML = data.nTitle;
 	    $scope.year     = data.ntYear;
 	    $scope.month    = data.ntMonth;
 	    $scope.day      = data.ntDay;
@@ -144,7 +189,7 @@ app.controller('MainController', function($scope, $http) {
 	    $scope.current    = $scope.nbook_ix;
 	});	
     };
-    
+
     $scope.openNotebook = function(nb_name) {
 	$scope.message = "Loading...";
 	$scope.toggleVis("loading");
@@ -159,6 +204,9 @@ app.controller('MainController', function($scope, $http) {
 	});
     };
 
+    /*-------------------------------------------------------------------*
+      UI Functions
+      -------------------------------------------------------------------*/
     $scope.isActive = function(page) {
 	if (page == $scope.current)
 	    return true; 
@@ -182,24 +230,15 @@ app.controller('MainController', function($scope, $http) {
 	return $scope.favorite;
     }
 
-    $scope.updateFav = function (){
-	console.log("Check if favorite...");
-	$http.get(SERVER + "is-fav/" + $scope.note_ix).success(function (data){
-	    $scope.favorite = data.successR;
-	}).error(function(data){
-	    $scope.updateFav();
-	});
-
-    }
-
+    
     $scope.isNotFav = function() {
 	return (!$scope.favorite);
     }
 
-    $scope.setNavTitle = function(title) {
-	$scope.navigation = "Notes for " + title + " [" + $scope.title + "]";
-    }
 
+    /*-------------------------------------------------------------------*
+      Note Address Functions
+      -------------------------------------------------------------------*/
     // Navigate notes
     $scope.getNotes = function(year, month, day){
 	var current = $scope.current;
@@ -270,6 +309,7 @@ app.controller('MainController', function($scope, $http) {
 	});
     }
 
+    
     // Open Note
     $scope.openNote = function(ix) {
 	console.log("Function openNote");
@@ -286,8 +326,8 @@ app.controller('MainController', function($scope, $http) {
     $scope.noteReceived = function(data)
     {
 	$scope.toggleVis('notebook');
-	$scope.markdown = data.nContent;
-	document.getElementById('note').innerHTML = data.nHtml;
+	document.getElementById('note').innerHTML = data.nContent;
+	document.getElementById('nbtitle').innerHTML = data.nTitle;
 	$scope.year = data.ntYear;
 	$scope.month = data.ntMonth;
 	$scope.day   = data.ntDay;
@@ -302,14 +342,110 @@ app.controller('MainController', function($scope, $http) {
 	$scope.message ="";
     }
 
+    $scope.initializeMenu = function(){
+	
+    }
+
+    /*----------------------------------------------------------------------
+      Notes Main Menu
+      --------------------------------------------------------------------*/
     $scope.mnPrev = function() {
+	$scope.initializeMenu();
 	// Instead of hardcode 0, set a variable (filled from backend)
 	if ($scope.note_ix > 0){
 	    $http.get(SERVER + "get-prev/" + $scope.nbook_ix + "/" + $scope.note_ix).success($scope.noteReceived);
 	}
 	$scope.message ="";
     }
+    
+    $scope.mnNext = function(){
+	$scope.initializeMenu();
+	$scope.callNote($scope.note_ix + 1);
+	$http.get(SERVER + "get-next/" + $scope.nbook_ix + "/" + $scope.note_ix).success($scope.noteReceived);
+	$scope.message ="";
+    }
 
+    $scope.mnSave = function() {
+	$scope.nbtitle = document.getElementById("nbtitle").innerHTML;
+	$scope.content = document.getElementById("note").innerHTML;
+	console.log($scope.content);
+	if ($scope.nbtitle === "" && $scope.content === "") {
+	    $scope.message = "Provide a note title and content!";
+	    return;
+	}
+	if ($scope.nbtitle == "") {
+	    $scope.message = "Provide a valid title!";
+	    return;
+	}
+	if ($scope.content == "") {
+	    $scope.message = "Note is empty!";
+	    return;
+	}
+
+	if($scope.action === "create_note"){
+	    var req = {
+		method: 'POST',
+		url: SERVER + 'create-note',
+		headers: {
+		    'Content-Type' : undefined
+		},
+		data: {
+		    crNbId  : $scope.nbook_ix,
+		    crTitle : $scope.nbtitle,
+		    crContent : $scope.content
+		}
+	    }
+	    console.log($scope.nbtitle);
+	    console.log(JSON.stringify(req.data));
+	    $http(req).then(function(result){
+		$scope.message = result.data.messageR;
+		if(result.data.successR){
+		    $scope.toggleVis('notebook');
+		    $scope.getLastNote($scope.nbook_ix);
+		}
+	    });
+	}else{
+	    var change = false;
+	    if ($scope.content != $scope.lastContent || $scope.nbtitle != $scope.lastTitle) {
+		change = true;
+	    }
+	    console.log("Change...");
+	    if (change){
+		// $scope.current = curr;
+		var req = {
+		    method: 'POST',
+		    url: SERVER + 'update-note',
+		    headers: {
+			'Content-Type' : undefined
+		    },
+		    data: {
+			updId    : $scope.note_ix,
+			updTitle : $scope.nbtitle,
+			updContent : $scope.content
+		    }
+		};
+		
+		$http(req).then(function(result){
+		    $scope.message = result.data.messageR;
+		    if(result.data.successR){
+//			console.log("Entering...");
+			// $scope.openNote($scope.note_ix);
+		    }		    
+		}, function(response){
+		    console.log("ERROR:");
+		    console.log(JSON.stringify(response));
+		    $scope.message = response.data;
+		    // $scope.toggleVis('notebook');
+		    
+		});
+	    }else {
+		$scope.toggleVis('notebook');
+		$scope.current = curr;
+	    }	    
+	}
+    }
+
+    
     $scope.mnFav = function() {
 	if ($scope.favorite){ // UnFav
 	    $http.get(SERVER + "unfav-note/" + $scope.note_ix).success(function (data){
@@ -328,36 +464,19 @@ app.controller('MainController', function($scope, $http) {
 	}
     }
 
-    $scope.mnNext = function(){
-	$scope.callNote($scope.note_ix + 1);
-	$http.get(SERVER + "get-next/" + $scope.nbook_ix + "/" + $scope.note_ix).success($scope.noteReceived);
-	$scope.message ="";
-    }
-    
+
     $scope.mnCreate = function() {
 	var curr = $scope.current;
 	$scope.tmptitle    = $scope.nbtitle;
-	$scope.tmpmarkdown = $scope.markdown;
-	
+	$scope.tmpcontent  = $scope.content;
 	$scope.nbtitle = "";
-	$scope.markdown = "";
+	document.getElementById('nbtitle').innerHTML = "";
+	document.getElementById('note').innerHTML = "";
 	$scope.action = "create_note";	
-	$scope.toggleVis('edit');
 
 	$scope.current = curr;
 	$scope.message = "";
 
-    };
-    
-    $scope.mnEdit = function() {
-	var curr = $scope.current;
-	$scope.action = "update_note";
-	$scope.toggleVis('edit');
-	$scope.current = curr;
-	$scope.message = "";
-	$scope.lastTitle = $scope.nbtitle;
-	$scope.lastContent = $scope.markdown;
-	console.log("Editing note...");
     };
 
     $scope.mnDelete = function() {
@@ -365,6 +484,110 @@ app.controller('MainController', function($scope, $http) {
 	$scope.delete_note = true;
 	$scope.message ="";	
     }
+
+
+    /*-------------------------------------------------------------------*
+      Note Menu helper functions
+      -------------------------------------------------------------------*/
+    $scope.updateFav = function (){
+	console.log("Check if favorite...");
+	$http.get(SERVER + "is-fav/" + $scope.note_ix).success(function (data){
+	    $scope.favorite = data.successR;
+	}).error(function(data){
+	    $scope.updateFav();
+	});
+
+    }
+
+    $scope.setNavTitle = function(title) {
+	$scope.navigation = "Notes for " + title + " [" + $scope.title + "]";
+    }
+
+    
+    /*-----------------------------------------------------------------------
+      Inferior menu functions
+    ------------------------------------------------------------------------*/
+
+    $scope.btnHeader = function() {
+	var tx = document.getElementById("note").innerHTML;
+	var newVal = "";
+
+	var sel = document.getSelection();
+
+	console.log(JSON.stringify(sel));
+
+	// console.log("Anchor Offset: " + sel.anchorOffset);
+	
+	if (sel.baseOffset != 0 || sel.focusOffset != 0) {
+	    var st = sel.anchorOffset;
+	    var en = sel.focusOffset;
+
+	    if (st > en ){
+		st = en;
+		en = sel.baseOffset;
+	    }
+		
+	    console.log("Notes Inner HTML: " + tx);
+	    console.log("ST: " + st);
+	    console.log("EN: " + en);
+	    console.log("Substring: " + sel.baseNode.nodeValue.substring(st, en));
+	    console.log("Sel Node value: " + sel.baseNode.nodeValue);
+
+	    
+	}else{
+	    $scope.message = "Please select some text";
+	}
+	   
+    };
+
+
+    $scope.btnItalics = function() {
+	$scope.surround("_");
+    }
+  
+    $scope.btnBold = function() {
+	$scope.surround("**");
+    }
+
+    $scope.btnLink = function() {
+	$scope.edit_lnk = true;
+	var tx = document.getElementById("editor");
+	var ip = document.getElementById("lnk_title");
+	
+	$scope.st = tx.selectionStart;
+	$scope.en = tx.selectionEnd;
+
+	ip.focus();
+	
+    }
+
+    $scope.btnCode = function () {
+	$scope.code = true;
+	var tx = document.getElementById("note");
+	$scope.st = tx.selectionStart;
+	$scope.en = tx.selectionEnd;
+    }
+
+    $scope.btnSShot = function () {
+	var tx = document.getElementById("note");
+	$scope.st = tx.selectionStart;
+	$scope.en = tx.selectionEnd;
+	var args = {};
+	console.log('Screenshot...');
+	ipc.send('capture-screenshot', args);
+    }
+
+
+    $scope.btnUList = function() {
+	$scope.List("*");
+    };
+
+    $scope.btnOList = function() {
+	$scope.List("1.");
+    };
+
+
+    
 
     $scope.delCancel = function() {
 	$scope.delete_note = false;
@@ -382,48 +605,8 @@ app.controller('MainController', function($scope, $http) {
 	});;
     }
 
-    $scope.btnHeader = function() {
-	var tx = document.getElementById("editor");
-	var newVal = "";
-
-	if (tx.selectionStart != undefined) {
-	    var st = tx.selectionStart;
-	    var en = tx.selectionEnd;
-	    var added = 0;
-
-	    // If no text is selected, the curren line
-	    // will be a title
-	    if (st == en) {
-		var ch = tx.value.substring(st -2, st -1);
-		while(ch != '\n') {
-		    st--;
-		    ch = tx.value.substring(st -2, st -1);
-		}
-		st --;
-	    }
-	    newVal = tx.value.substring(0,st);
-	    // If the selection is not the start of line
-	    // two lines will be created
-	    if(tx.value.substring(st - 2, st -1) != '\n'){
-		newVal = newVal + "\n\n# " + tx.value.substring(st, en);
-		added = 4;
-	    }else{
-		newVal = newVal + "# " + tx.value.substring(st, en);
-		added = 2;
-	    }
-	    if (tx.value.length > en )
-		newVal = newVal + tx.value.substring(en, tx.value.length - 1);
-
-	    tx.value = newVal;
-	    $scope.markdown = newVal;
-	    tx.setSelectionRange(en + added, en + added);
-	    tx.focus();
-	}
-	   
-    };
-
     $scope.surround = function(surr) {
-	var tx = document.getElementById("editor");
+	var tx = document.getElementById("note");
 	var added = surr.length * 2;
 	var newVal = "";
 	$scope.message = "";
@@ -448,46 +631,10 @@ app.controller('MainController', function($scope, $http) {
 	}
     };
 
-    $scope.btnItalics = function() {
-	$scope.surround("_");
-    }
-  
-    $scope.btnBold = function() {
-	$scope.surround("**");
-    }
-
-    $scope.btnLink = function() {
-	$scope.edit_lnk = true;
-	var tx = document.getElementById("editor");
-	var ip = document.getElementById("lnk_title");
-	
-	$scope.st = tx.selectionStart;
-	$scope.en = tx.selectionEnd;
-
-	ip.focus();
-	
-    }
-
-    $scope.btnCode = function () {
-	$scope.code = true;
-	var tx = document.getElementById("editor");
-	$scope.st = tx.selectionStart;
-	$scope.en = tx.selectionEnd;
-    }
-
-    $scope.btnSShot = function () {
-	var tx = document.getElementById("editor");
-	$scope.st = tx.selectionStart;
-	$scope.en = tx.selectionEnd;
-	var args = {};
-	console.log('Screenshot...');
-	ipc.send('capture-screenshot', args);
-    }
-
     // This function is called by the backend
     $scope.addScreenshot = function (ssid) {
 	var newVal = "";
-	var tx = document.getElementById("editor");
+	var tx = document.getElementById("note");
 	var added = 0;
 	if ($scope.st != undefined) {
 	    newVal = tx.value.substring(0, $scope.st);
@@ -506,7 +653,7 @@ app.controller('MainController', function($scope, $http) {
     $scope.cdAccept = function() {
 	$scope.code = false;
 	var newVAL = "";
-	var tx = document.getElementById("editor");
+	var tx = document.getElementById("note");
 	var added = 0;
 	var lg = document.getElementById("lang");
 	var cd = document.getElementById("code");
@@ -602,28 +749,11 @@ app.controller('MainController', function($scope, $http) {
 	}
     };
 
-    $scope.btnUList = function() {
-	$scope.List("*");
-    };
-
-    $scope.btnOList = function() {
-	$scope.List("1.");
-    };
-    
-    // This function is triggered when a change is made in the Notes Editor
-    $scope.editorChange = function(){
-	// TODO: Implement function
-    };
-    
-    // Thi function is used to CREATE or UPDATE a note
+    /*
+    // This function is used to CREATE or UPDATE a note
     $scope.mnViewHtml = function() {
-	console.log("View HTML");
 	var curr = $scope.current;
 	
-	if ($scope.nbtitle == "" && $scope.markdown == "") {
-	    $scope.message = "Provide a note title and content!";
-	    return;
-	}
 	if ( $scope.nbtitle == "") {
 	    $scope.message = "Provide a valid title!";
 	    return;
@@ -697,14 +827,28 @@ app.controller('MainController', function($scope, $http) {
 	    }
 	}
     };
+    */
+
+    /*-------------------------------------------------------------------*
+      MAIN
+      -------------------------------------------------------------------*/
+    $scope.initializeApp();
+
+    
 });
 
+
+
+/*-------------------------------------------------------------------*
+  Backend Functions
+  -------------------------------------------------------------------*/
 var getScope = function() {
     var main = document.getElementById("html");
     var sc = angular.element(main).scope();
     return sc;
 };
 
+/*
 // This event is called when a new notebook is created
 ipc.on('notebook-ready', function(data) {
     var sc = getScope();
@@ -717,7 +861,6 @@ ipc.on('notebook-ready', function(data) {
 	sc.notebook = lastNB;
 	sc.current = lastNB.id;
 	sc.title   = lastNB.name;
-	sc.markdown = lastNB.notes[data.nt_ix].content;
 	sc.nbtitle  = lastNB.notes[data.nt_ix].title;
 	sc.year     = lastNB.notes[data.nt_ix].year;
 	sc.month    = lastNB.notes[data.nt_ix].month;
@@ -728,6 +871,9 @@ ipc.on('notebook-ready', function(data) {
 	sc.debug    = data.debug;
     });
 });
+
+*/
+
 // Screenshot taken
 ipc.on('screenshot', function(data) {
     var sc = getScope();
@@ -735,3 +881,5 @@ ipc.on('screenshot', function(data) {
 	sc.addScreenshot(data.ssid);
     });
 });
+
+
