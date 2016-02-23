@@ -96,31 +96,68 @@
 	  <div class="row nbmenu" ng-show="notebook_vis">
 	    <div class="col-lg-7">
 	      <div class="btn-group" role="group" aria-label="...">
-		<button type="button" ng-class="{'btn':
-						true,'btn-default':
-						true,'disabled':
-						isFirstNote()}"
-			ng-click="mnPrev()">
+
+		<!--  PREVIOUS NOTE -->
+		<button type="button"
+			ng-class="{'btn': true,
+				  'btn-default': true,
+				  'disabled': isFirstNote()}"
+			ng-click="mnPrev()"
+			ng-show="viewMode()">
 		  <span class="glyphicon glyphicon-arrow-left"
-			aria-hiden="true"></span> Previous</button>
-		<button type="button" ng-class="{'btn' : true, 'btn-default': true, 'disabled': isLastNote()}"  ng-click="mnNext()">
-		    <span class="glyphicon
-		    glyphicon-arrow-right"></span> Next
+			aria-hiden="true"></span> Previous
 		</button>
-		
-		<button type="button" class="btn btn-default"
-		ng-click="mnSave()"><span class="fa fa-floppy-o
-						   fa-1g"></span>
-		  Save </button>
-				  
+
+		<!-- EDIT NOTE -->
+		<button type="button"
+			ng-class="{'btn' : true, 
+				  'btn-default': true, 
+				  'disabled': isLastNote()}"
+			ng-click="mnNext()"
+			ng-show="viewMode()">
+		  <span class="glyphicon glyphicon-arrow-right"></span> Next
+		</button>
+
+		<!-- SAVE / EDIT -->
+		<button type="button"
+			class="btn btn-default"
+			ng-click="mnSaveEdit()">
+		  <span ng-class="{'fa': true,
+				  'fa-edit': viewMode(), 'fa-floppy-o': editMode(),
+				  'fa-1g': true}"></span> {{save_edit}}
+		</button>
+
+		<!-- FAVORITE -->
                 <button type="button" class="btn btn-default"
-			ng-click="mnFav()">
-		  <span ng-class="{'fa' : true, 'fa-star-o': isNotFav(), 'fa-star': isFav()}"></span> Favorite</button>
+			ng-click="mnFav()" ng-show="viewMode()">
+		  <span ng-class="{'fa' : true, 'fa-star-o':
+				  isNotFav(), 'fa-star': isFav()}"></span> Favorite
+		</button>
+
+		<!-- CREATE -->
+		<button type="button"
+			class="btn btn-default"
+			ng-click="mnCreate()"
+			ng-show="viewMode()">
+		  <span class="fa fa-file-text-o fa-1g"></span> Create
+		</button>
+
+		<!-- CODE -->
 		<button type="button" class="btn btn-default"
-		ng-click="mnCreate()"><span class="fa fa-file-text-o
-						   fa-1g"></span>
-		  Create </button>
-		<button type="button" class="btn btn-default" ng-click="mnDelete()">
+			ng-click="btnCode()" ng-show="editMode()">
+		  <span class="fa fa-code"></span> Code
+		</button>
+
+		<!-- SCREENSHOT -->
+		<button type="button" class="btn btn-default"
+			ng-click="btnSShot()" ng-show="editMode()">
+		    <span class="fa fa-camera-retro"></span>
+		    Screenshot
+		</button>
+
+		<!-- DELETE NOTE -->
+		<button type="button" class="btn btn-default"
+			ng-click="mnDelete()" ng-show="viewMode()">
 		  <span class="fa fa-trash-o"></span>
 		    Delete
 		</button>
@@ -207,8 +244,9 @@
 		  </div>
 		</div>
 	      </div>
-	    </div>1
-	  
+	    </div>
+
+	  <!--
 	  <div id="lk_title" class="row lk_title" ng-show="edit_lnk">
 	      <div class="col-lg-11">
 		<div class="input-group">
@@ -227,6 +265,7 @@
 		</div>
 	      </div>
 	    </div>
+	  -->
 
 	  <div class="row nbvis" ng-show="notebook_vis">
 	    <div class="col-lg-12">
@@ -237,8 +276,14 @@
 		  <a href="#" ng-click="getNotes(year, month, day)">
 		    {{day}}</a> / {{nbtitle}} 
 		</div>
-		<h1 contenteditable="true"  id="nbtitle"></h1>
-		<div class="editable" id="note"> </div>
+	      <h1 contenteditable="true" id="nbtitle"
+		  class="edit_mode" ng-show="editMode()"></h1>
+	      
+	      <h1 contenteditable="false" id="nbtitlevis"
+		  class="view_mode" ng-show="viewMode()"></h1>
+	      
+		<div class="editable edit_mode" id="note" ng-show="editMode()"> </div>
+		<div class="view_mode" id="notevis" ng-show="viewMode()"></div>
 	      </div>
 	    </div>
 
@@ -369,28 +414,23 @@
     <!--</script>-->
     <!--    {{debug}}-->
     <script>
-      var editor = new MediumEditor('.editable', {
-      autoLink: true,
-      placeholder: {
-          text: ''
-      },
-      anchorPreview : true,
-      anchor: {
-        /* These are the default options for anchor form,
-           if nothing is passed this is what it used */
-        linkValidation: false,
-        placeholderText: 'Paste or type a link',
-        targetCheckbox: true,
-        targetCheckboxText: 'Open in new window'
-      },
-      disableEditing: true
-     
-
-      });
+      editor = new MediumEditor('.editable', {
+        autoLink: true,
+        placeholder: {
+            text: ''
+        },
+        anchorPreview : true,
+        anchor: {
+            linkValidation: false,
+            placeholderText: 'Paste or type a link',
+            targetCheckbox: false,
+            targetCheckboxText: 'Open in new window'
+        },
+        disableEditing: false
+          });
 
         
-    });
-    </script>
+        </script>
 
 </body>
 

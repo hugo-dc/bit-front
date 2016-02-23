@@ -54,6 +54,8 @@ app.controller('MainController', function($scope, $http) {
     $scope.delete_note = false;
     $scope.favorite = false; // Current note is favorite?
     $scope.navitem = null;
+    $scope.saveMode = false;
+    $scope.save_edit = "Edit";
 
     
     $scope.months = ["January", "February", "March",
@@ -160,6 +162,7 @@ app.controller('MainController', function($scope, $http) {
 			$scope.notebooks = data;
 		    $http.get(SERVER + 'get-note-by-nb-name/' + name + '/1').success(function(data){
 			document.getElementById('note').innerHTML = data.nContent;
+			document.getElementById('notevis').innerHTML = data.nContent;
 			$scope.current = data.parentId;
 			$scope.title   = name;
 			$scope.nbtitle  = data.nTitle;
@@ -179,7 +182,9 @@ app.controller('MainController', function($scope, $http) {
 	$http.get(SERVER + "get-last-note/" + nbid).success(function(data) {
 	    $scope.toggleVis('notebook');
 	    document.getElementById('note').innerHTML = data.nContent;
+	    document.getElementById('notevis').innerHTML = data.nContent;
 	    document.getElementById('nbtitle').innerHTML = data.nTitle;
+	    document.getElementById('nbtitlevis').innerHTML = data.nTitle;
 	    $scope.year     = data.ntYear;
 	    $scope.month    = data.ntMonth;
 	    $scope.day      = data.ntDay;
@@ -235,6 +240,13 @@ app.controller('MainController', function($scope, $http) {
 	return (!$scope.favorite);
     }
 
+    $scope.viewMode = function() {
+	return (!$scope.saveMode);
+    }
+
+    $scope.editMode = function() {
+	return ($scope.saveMode);
+    }
 
     /*-------------------------------------------------------------------*
       Note Address Functions
@@ -327,7 +339,9 @@ app.controller('MainController', function($scope, $http) {
     {
 	$scope.toggleVis('notebook');
 	document.getElementById('note').innerHTML = data.nContent;
+	document.getElementById('notevis').innerHTML = data.nContent;
 	document.getElementById('nbtitle').innerHTML = data.nTitle;
+	document.getElementById('nbtitlevis').innerHTML = data.nTitle;
 	$scope.year = data.ntYear;
 	$scope.month = data.ntMonth;
 	$scope.day   = data.ntDay;
@@ -365,84 +379,22 @@ app.controller('MainController', function($scope, $http) {
 	$scope.message ="";
     }
 
-    $scope.mnSave = function() {
-	$scope.nbtitle = document.getElementById("nbtitle").innerHTML;
-	$scope.content = document.getElementById("note").innerHTML;
-	console.log($scope.content);
-	if ($scope.nbtitle === "" && $scope.content === "") {
-	    $scope.message = "Provide a note title and content!";
-	    return;
-	}
-	if ($scope.nbtitle == "") {
-	    $scope.message = "Provide a valid title!";
-	    return;
-	}
-	if ($scope.content == "") {
-	    $scope.message = "Note is empty!";
-	    return;
-	}
-
-	if($scope.action === "create_note"){
-	    var req = {
-		method: 'POST',
-		url: SERVER + 'create-note',
-		headers: {
-		    'Content-Type' : undefined
-		},
-		data: {
-		    crNbId  : $scope.nbook_ix,
-		    crTitle : $scope.nbtitle,
-		    crContent : $scope.content
-		}
+    $scope.mnSaveEdit = function() {
+	if($scope.saveMode) {
+	    if(!$scope.validateSave())
+	    {
+		return;
+	    }else{
+		$scope.saveUpdate();
 	    }
-	    console.log($scope.nbtitle);
-	    console.log(JSON.stringify(req.data));
-	    $http(req).then(function(result){
-		$scope.message = result.data.messageR;
-		if(result.data.successR){
-		    $scope.toggleVis('notebook');
-		    $scope.getLastNote($scope.nbook_ix);
-		}
-	    });
+	    $scope.saveMode = false;
+	    $scope.save_edit = "Edit";
 	}else{
-	    var change = false;
-	    if ($scope.content != $scope.lastContent || $scope.nbtitle != $scope.lastTitle) {
-		change = true;
-	    }
-	    console.log("Change...");
-	    if (change){
-		// $scope.current = curr;
-		var req = {
-		    method: 'POST',
-		    url: SERVER + 'update-note',
-		    headers: {
-			'Content-Type' : undefined
-		    },
-		    data: {
-			updId    : $scope.note_ix,
-			updTitle : $scope.nbtitle,
-			updContent : $scope.content
-		    }
-		};
-		
-		$http(req).then(function(result){
-		    $scope.message = result.data.messageR;
-		    if(result.data.successR){
-//			console.log("Entering...");
-			// $scope.openNote($scope.note_ix);
-		    }		    
-		}, function(response){
-		    console.log("ERROR:");
-		    console.log(JSON.stringify(response));
-		    $scope.message = response.data;
-		    // $scope.toggleVis('notebook');
-		    
-		});
-	    }else {
-		$scope.toggleVis('notebook');
-		$scope.current = curr;
-	    }	    
+	    $scope.saveMode = true;
+	    $scope.save_edit = "Save";
+//	    editor.disableEditing = false;
 	}
+	
     }
 
     
@@ -471,7 +423,9 @@ app.controller('MainController', function($scope, $http) {
 	$scope.tmpcontent  = $scope.content;
 	$scope.nbtitle = "";
 	document.getElementById('nbtitle').innerHTML = "";
+	document.getElementById('nbtitlevis').innerHTML = "";
 	document.getElementById('note').innerHTML = "";
+	document.getElementById('notevis').innerHTML = "";
 	$scope.action = "create_note";	
 
 	$scope.current = curr;
@@ -489,7 +443,7 @@ app.controller('MainController', function($scope, $http) {
     /*-------------------------------------------------------------------*
       Note Menu helper functions
       -------------------------------------------------------------------*/
-    $scope.updateFav = function (){
+	$scope.updateFav = function (){
 	console.log("Check if favorite...");
 	$http.get(SERVER + "is-fav/" + $scope.note_ix).success(function (data){
 	    $scope.favorite = data.successR;
@@ -503,7 +457,89 @@ app.controller('MainController', function($scope, $http) {
 	$scope.navigation = "Notes for " + title + " [" + $scope.title + "]";
     }
 
-    
+	$scope.validateSave = function() {
+	    $scope.nbtitle = document.getElementById("nbtitle").innerHTML;
+ 	    $scope.content = document.getElementById("note").innerHTML;
+	    console.log($scope.content);
+	    if ($scope.nbtitle === "" && $scope.content === "") {
+		$scope.message = "Provide a note title and content!";
+		return false;
+	    }
+	    if ($scope.nbtitle == "") {
+		$scope.message = "Provide a valid title!";
+		return false;
+	    }
+	    if ($scope.content == "") {
+		$scope.message = "Note is empty!";
+		return false;
+	    }
+
+	    return true;
+	}
+
+	$scope.saveUpdate = function() {
+	    if($scope.action === "create_note"){
+		var req = {
+		    method: 'POST',
+		    url: SERVER + 'create-note',
+		    headers: {
+			'Content-Type' : undefined
+		    },
+		    data: {
+			crNbId  : $scope.nbook_ix,
+			crTitle : $scope.nbtitle,
+			crContent : $scope.content
+		    }
+		}
+		console.log($scope.nbtitle);
+		console.log(JSON.stringify(req.data));
+		$http(req).then(function(result){
+		    $scope.message = result.data.messageR;
+		    if(result.data.successR){
+			$scope.toggleVis('notebook');
+			$scope.getLastNote($scope.nbook_ix);
+		    }
+		});
+	    }else{
+		var change = false;
+		if ($scope.content != $scope.lastContent || $scope.nbtitle != $scope.lastTitle) {
+		    change = true;
+		}
+		console.log("Change...");
+		if (change){
+		    // $scope.current = curr;
+		    var req = {
+			method: 'POST',
+			url: SERVER + 'update-note',
+			headers: {
+			    'Content-Type' : undefined
+			},
+			data: {
+			    updId    : $scope.note_ix,
+			    updTitle : $scope.nbtitle,
+			    updContent : $scope.content
+			}
+		    };
+		
+		    $http(req).then(function(result){
+			$scope.message = result.data.messageR;
+			if(result.data.successR){
+			    //			console.log("Entering...");
+			    // $scope.openNote($scope.note_ix);
+			}		    
+		    }, function(response){
+			console.log("ERROR:");
+			console.log(JSON.stringify(response));
+			$scope.message = response.data;
+			// $scope.toggleVis('notebook');
+		    });
+		}else {
+		    $scope.toggleVis('notebook');
+		    $scope.current = curr;
+		}	    
+	    }	    
+	}
+	
     /*-----------------------------------------------------------------------
       Inferior menu functions
     ------------------------------------------------------------------------*/
@@ -883,3 +919,4 @@ ipc.on('screenshot', function(data) {
 });
 
 
+var editor = null;
