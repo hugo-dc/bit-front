@@ -524,6 +524,8 @@ app.controller('MainController', function($scope, $http) {
 		    $http(req).then(function(result){
 			$scope.message = result.data.messageR;
 			if(result.data.successR){
+			    document.getElementById('nbtitlevis').innerHTML = $scope.nbtitle;
+			    document.getElementById('notevis').innerHTML = $scope.content;
 			    //			console.log("Entering...");
 			    // $scope.openNote($scope.note_ix);
 			}		    
@@ -599,18 +601,12 @@ app.controller('MainController', function($scope, $http) {
 
     $scope.btnCode = function () {
 	$scope.code = true;
-	var tx = document.getElementById("note");
-	$scope.st = tx.selectionStart;
-	$scope.en = tx.selectionEnd;
+
     }
 
     $scope.btnSShot = function () {
-	var tx = document.getElementById("note");
-	$scope.st = tx.selectionStart;
-	$scope.en = tx.selectionEnd;
-	var args = {};
 	console.log('Screenshot...');
-	ipc.send('capture-screenshot', args);
+	ipc.send('capture-screenshot', {});
     }
 
 
@@ -669,24 +665,51 @@ app.controller('MainController', function($scope, $http) {
 
     // This function is called by the backend
     $scope.addScreenshot = function (ssid) {
-	var newVal = "";
-	var tx = document.getElementById("note");
-	var added = 0;
-	if ($scope.st != undefined) {
-	    newVal = tx.value.substring(0, $scope.st);
-	    newVal = newVal + "![](../bin/images/" + ssid + ".png) ";
-	    added = 39;
+	$scope.addHtml('<img src="../bin/images/' + ssid + '.png"/>');
+    }
+
+    $scope.saveCaret = function () {
+	
+    }
+
+    $scope.addHtml = function(html, typ) {
+
+	document.getElementById('note').focus();
+	var range;
+	var sel = window.getSelection();
+	if (sel.getRangeAt && sel.rangeCount) {
+	    range = sel.getRangeAt(0);
+	    range.deleteContents();
+
+	    // Range.createContextualFragment() would be useful here but is
+	    // non-standard and not supported in all browsers (IE9, for one)
+	    var el = document.createElement("p");
+	    if(typ != undefined){
+		el.innerHTML = "[" + typ + "] " + html;
+	    }else{
+		el.innerHTML = html;
+	    }
+	    var frag = document.createDocumentFragment(), node, lastNode;
+	    while ( (node = el.firstChild) ) {
+		lastNode = frag.appendChild(node);
+	    }
+	    range.insertNode(frag);
+            
+	    // Preserve the selection
+	    if (lastNode) {
+		range = range.cloneRange();
+		range.setStartAfter(lastNode);
+		range.collapse(true);
+		sel.removeAllRanges();
+		sel.addRange(range);
+	    }
 	}
-	newVal = newVal + tx.value.substring($scope.en, tx.value.length -1);
-	tx.value = newVal;
-	$scope.markdown = newVal;
-	tx.setSelectionRange($scope.en + added, $scope.en + added);
-	tx.focus();
-	$scope.st = null;
-	$scope.en = null;
     }
 
     $scope.cdAccept = function() {
+	var tx = document.getElementById("note");
+	$scope.st = tx.selectionStart;
+	$scope.en = tx.selectionEnd;
 	$scope.code = false;
 	var newVAL = "";
 	var tx = document.getElementById("note");
@@ -694,20 +717,32 @@ app.controller('MainController', function($scope, $http) {
 	var lg = document.getElementById("lang");
 	var cd = document.getElementById("code");
 
-	if ($scope.st != undefined) {
-	    newVal = tx.value.substring(0, $scope.st);
-	    newVal = newVal + "\n```" + lg.value + "\n" + cd.value + "\n```";
-	    added = lg.value.length + cd.value.length + 9;
+	var req = {
+	    method: 'POST',
+	    url:    SERVER + "get-html",
+	    headers: {
+		'Content-Type': undefined
+	    },
+	    data: {
+		code : cd.value,
+		lang : lg.value
+	    }
 	}
-	newVal = newVal + tx.value.substring($scope.en, tx.value.length);
-	tx.value = newVal;
-	$scope.markdown = newVal;
-	tx.setSelectionRange($scope.en + added, $scope.en + added);
-	tx.focus();
-	cd.value = "";
-	$scope.st = null;
-	$scope.en = null;
+	$http(req).then(function(result){
+	    console.log(JSON.stringify(result.data));
+	    console.log(result.data.successR);
+	    if(result.data.successR){
+		$scope.addHtml(result.data.messageR, lg.value);
+	    }else{
+		$scope.message = result.data.messageR;
+	    }
+	}, function(response){
+	    console.log("ERROR:");
+	    console.log(JSON.stringify(response));
+	    $scope.message = response.data;
+	});
     }
+
 
     $scope.cdCancel = function () {
 	$scope.code = false;
@@ -784,6 +819,8 @@ app.controller('MainController', function($scope, $http) {
 	    tx.focus();
 	}
     };
+
+    
 
     /*
     // This function is used to CREATE or UPDATE a note

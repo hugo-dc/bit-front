@@ -266,7 +266,6 @@
 	      </div>
 	    </div>
 	  -->
-
 	  <div class="row nbvis" ng-show="notebook_vis">
 	    <div class="col-lg-12">
 	      <div id="path">
@@ -282,7 +281,8 @@
 	      <h1 contenteditable="false" id="nbtitlevis"
 		  class="view_mode" ng-show="viewMode()"></h1>
 	      
-		<div class="editable edit_mode" id="note" ng-show="editMode()"> </div>
+		<div class="editable edit_mode" id="note"
+		ng-show="editMode()" ng-blur="saveCaret()"> </div>
 		<div class="view_mode" id="notevis" ng-show="viewMode()"></div>
 	      </div>
 	    </div>
