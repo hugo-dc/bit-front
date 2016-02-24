@@ -45,7 +45,7 @@
       <div id="sidebar-wrapper">
         <ul class="sidebar-nav">
           <li class="sidebar-brand">
-            <a href="#">BitacorApp [{{nbook_ix}}/{{note_ix}}]</a>
+            <a href="#">BitacorApp </a> <!--[{{nbook_ix}}/{{note_ix}}]</a>-->
           </li>
           <li>
             <a ng-class="{'active': isActive('index')}" href="#" ng-click="pgHome();">
@@ -238,7 +238,7 @@
 		<div class="input-group">
 		  <div class="input-group-btn">
 		    <button type="button" class="btn btn-default"
-			    ng-click="cdAccept()">Accept</button>
+			    ng-click="cdAccept()" ng-mousedown="restoreCaret()">Accept</button>
 		    <button type="button" class="btn btn-danger"
 			    ng-click="cdCancel()">Cancel</button>
 		  </div>
@@ -276,13 +276,15 @@
 		    {{day}}</a> / {{nbtitle}} 
 		</div>
 	      <h1 contenteditable="true" id="nbtitle"
-		  class="edit_mode" ng-show="editMode()"></h1>
+		  class="edit_mode" ng-show="editMode()"
+		  placeholder="Insert title..."></h1>
 	      
 	      <h1 contenteditable="false" id="nbtitlevis"
 		  class="view_mode" ng-show="viewMode()"></h1>
 	      
 		<div class="editable edit_mode" id="note"
-		ng-show="editMode()" ng-blur="saveCaret()"> </div>
+		ng-show="editMode()" ng-blur="saveCaret()"
+		placeholder="Enter Notes..."> </div>
 		<div class="view_mode" id="notevis" ng-show="viewMode()"></div>
 	      </div>
 	    </div>
