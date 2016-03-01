@@ -20,12 +20,13 @@
 var app = angular.module('Bitacorapp', []);
 var ipc = require('ipc');
 
+// var dev = false;
 var dev = true;
 
 if (dev)
     var SERVER = "http://localhost:3001/";
 else
-    var SERVER = "http://localhost:3000/";
+    var SERVER = "http://localhost:3003/";
 
 app.controller('MainController', function($scope, $http) {
 
@@ -58,7 +59,6 @@ app.controller('MainController', function($scope, $http) {
     $scope.saveMode = false;
     $scope.save_edit = "Edit";
     
-
     $scope.months = ["January", "February", "March",
 		     "April",   "May"     , "June",
 		     "July",    "August",   "September",
@@ -87,7 +87,60 @@ app.controller('MainController', function($scope, $http) {
 		$scope.message = "You have a total of " + data.length + " notebooks!";   
 	    }
 	});
+
+	$scope.reloadFavorites();
     }
+
+    $scope.reloadFavorites = function() {
+	console.log("RELOADING FAVORITES...");
+	$http.get(SERVER + "get-favs").success(function(data){
+	    console.log("Success...");
+	    console.log(JSON.stringify(data));
+	    $scope.favorites = data;
+	    $scope.fav_data = [];
+	    for(i = 0 ; i < $scope.favorites.length; i++) {
+		var favid  = $scope.favorites[i].fvId;
+		var fparid = $scope.favorites[i].fparId;
+		var noteid = $scope.favorites[i].noteId;
+		$http.get(SERVER + 'get-notebook/' + fparid).success(function(data){
+		    var nbname;
+		    if(data.nbId){
+			nbname = data.nbName;
+		    }
+		    $http.get(SERVER + 'get-note/' + noteid).success(function(data){
+			var nttitle;
+			if(data)
+			    nttitle = data.nTitle
+			$scope.fav_data[favid] = { notebook:  nbname,
+						   note:      nttitle };
+		    });
+		});
+	    }
+	});
+    }
+
+    /*
+    $scope.getParentName = function(id) {
+	console.log("Getting Notebook name...");
+	$http.get(SERVER + 'get-notebook/' + id).success(function(data){
+	    console.log(JSON.stringify(data));
+	    if(data.nbId){
+		return data.nbName;
+	    }else{
+		return "";
+	    }
+	});
+    }
+
+    $scope.getNoteName = function(id){
+	$http.get(SERVER + 'get-note/' + id).success(function(data){
+	    if(data)
+		return data.nTitle;
+	    else
+		return "";
+	});
+    }
+    */
     
     $scope.initializeApp = function() {
 	$scope.message = "Connecting to backend server...";
@@ -103,6 +156,7 @@ app.controller('MainController', function($scope, $http) {
     };
 
     $scope.pgCreateNotebook = function() {
+	$scope.message = "";
 	$scope.toggleVis('create');
     };
   
@@ -167,17 +221,28 @@ app.controller('MainController', function($scope, $http) {
 		if (data == null) {
 		    $scope.message = "Please set different title";
 		}else{
-		    $scope.toggleVis("loading");		    
 		    $scope.nbook_ix = data.nbId;
-		    $scope.toggleVis('notebook');
-		    $http.get(SERVER + 'get-notebooks').success(function(data){
-			$scope.notebooks = data;
-			$scope.getLastNote($scope.nbook_ix);
-		    });
+		    $scope.reloadNotebooks($scope.nbook_ix);
 		}
 	    });
 	}
     };
+
+    $scope.reloadNotebooks = function(ix) {
+	console.log("Reloading...");
+	$scope.toggleVis("loading");
+
+	if(ix >= 0)
+	    $scope.toggleVis('notebook');
+	else
+	    $scope.pgHome();
+	$http.get(SERVER + 'get-notebooks').success(function(data){
+	    $scope.notebooks = data;
+	    if(ix >= 0)
+		$scope.getLastNote(ix);
+	});
+	$scope.reloadFavorites();
+    }
 
     $scope.getFirstNoteId = function (nbid) {
 	console.log(nbid);
@@ -214,9 +279,17 @@ app.controller('MainController', function($scope, $http) {
 	});	
     };
 
+    $scope.getLastNoteId = function(nbid) {
+	$http.get(SERVER + "get-last-note/" + nbid).success(function(data) {
+	    $scope.lastNoteId = data.ntId;
+	});
+    }
+
     $scope.openNotebook = function(nb_name) {
 	$scope.message = "Loading...";
 	$scope.toggleVis("loading");
+	$scope.saveMode = false;
+	$scope.save_edit = "Edit";
 
 	$http.get(SERVER + "get-notebook-by-name/"+ nb_name).success(function(data) {
 	    $scope.notebook = data;
@@ -249,6 +322,13 @@ app.controller('MainController', function($scope, $http) {
 	    return true;
 	return false;
     };
+
+    $scope.updateFav = function()
+    {
+	$http.get(SERVER + "is-fav/" + $scope.note_ix).success(function(data) {
+	    return data.successR;
+	});
+    }
 
     $scope.isFav = function() {
 	return $scope.favorite;
@@ -384,9 +464,22 @@ app.controller('MainController', function($scope, $http) {
       --------------------------------------------------------------------*/
     $scope.mnPrev = function() {
 	$scope.initializeMenu();
+
+	console.log($scope.note_ix);
 	// Instead of hardcode 0, set a variable (filled from backend)
 	if ($scope.note_ix > 0){
-	    $http.get(SERVER + "get-prev/" + $scope.nbook_ix + "/" + $scope.note_ix).success($scope.noteReceived);
+	    $http.get(SERVER + "get-prev/" + $scope.nbook_ix + "/" + $scope.note_ix).success(function (data) {
+		console.log("ENTER");
+		console.log(JSON.stringify(data));
+		if(data.ntId)
+		    $scope.noteReceived(data);
+		else
+		    $scope.reloadNotebooks(-1);
+	    }).error(function(data){
+		console.log("ERROR:");
+		console.log(JSON.stringify(data));
+		$scope.reloadNotebooks(-1);
+	    });
 	}
 	$scope.message ="";
     }
@@ -411,13 +504,14 @@ app.controller('MainController', function($scope, $http) {
 	}else{
 	    $scope.saveMode = true;
 	    $scope.save_edit = "Save";
-//	    editor.disableEditing = false;
+	    $scope.action    = "update_note";
 	}
 	
     }
 
     
     $scope.mnFav = function() {
+
 	if ($scope.favorite){ // UnFav
 	    $http.get(SERVER + "unfav-note/" + $scope.note_ix).success(function (data){
 		$scope.message = data.messageR;
@@ -426,7 +520,8 @@ app.controller('MainController', function($scope, $http) {
 		$scope.message = data;
 	    });
 	}else { // Fav note
-	    $http.get(SERVER + "fav-note/" + $scope.note_ix).success(function (data){
+	    console.log("Faving: " + $scope.note_ix + ", " + $scope.nbook_ix);
+	    $http.get(SERVER + "fav-note/" + $scope.note_ix + "/" + $scope.nbook_ix).success(function (data){
 		$scope.message = data.messageR;
 		$scope.favorite = true;
 	    }).error(function(data){
@@ -499,9 +594,9 @@ app.controller('MainController', function($scope, $http) {
 	}
 
 	$scope.saveUpdate = function() {
-	    if($scope.action === "create_note"){
-		var req = {
-		    method: 'POST',
+            if($scope.action === "create_note"){
+	        var req = {
+                    method: 'POST',
 		    url: SERVER + 'create-note',
 		    headers: {
 			'Content-Type' : undefined
@@ -619,7 +714,8 @@ app.controller('MainController', function($scope, $http) {
 	$http.get(SERVER + "delete-note/" + $scope.note_ix).success(function(data) {
 	    $scope.message = data.messageR;
 	    $scope.mnPrev();
-	    // TODO: Wee need to check what is last note and first note again
+	    $scope.getLastNoteId($scope.nbook_ix);
+	    $scope.getFirstNoteId($scope.nbook_ix);
 	}).error(function (data) {
 	    $scope.message = data;
 	});;
@@ -653,7 +749,10 @@ app.controller('MainController', function($scope, $http) {
 
     // This function is called by the backend
     $scope.addScreenshot = function (ssid) {
-	$scope.addHtml('<img src="../bin/images/' + ssid + '.png"/>');
+	if(dev)
+	    $scope.addHtml('<img src="../bin/images/' + ssid + '.png"/>');
+	else
+	    $scope.addHtml('<img src="../../../bin/images/' + ssid + '.png"/>');
     }
 
     $scope.saveCaret = function () {

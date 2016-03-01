@@ -60,6 +60,11 @@
 	      {{item.nbName}}
 	    </a>
           </li>
+	  <li ng-repeat="fav in favorites">
+	    <a href="#" ng-click="">
+	      <span class="fa fa-star fa-1g"> </span> {{fav_data[fav.fvId].notebook}}/{{fav_data[fav.fvId].note}}
+	    </a>
+	  </li>
           <li>
             <a ng-class="{active: isActive('create')}" href="#"
 	       ng-click="pgCreateNotebook();">
