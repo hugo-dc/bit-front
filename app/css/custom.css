@@ -24,13 +24,18 @@
 }
 
 .nbmenu {
-    position: fixed;
     top: 0;
     left: 50;
     width: 90%;
-    z-index: 999;
-    background-color: #fff;
+
+
+}
+
+.fix {
+    position: fixed;
+    background-color: #ffffff;
     padding-top: 5px;
+    z-index: 999;
 }
 
 .nbvis {

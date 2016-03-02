@@ -61,7 +61,7 @@
 	    </a>
           </li>
 	  <li ng-repeat="fav in favorites">
-	    <a href="#" ng-click="">
+	    <a href="#" ng-click="callNote(fav.noteId)">
 	      <span class="fa fa-star fa-1g"> </span> {{fav_data[fav.fvId].notebook}}/{{fav_data[fav.fvId].note}}
 	    </a>
 	  </li>
@@ -98,7 +98,7 @@
           </div>
 
 	  <!-- Notebook Menu -->
-	  <div class="row nbmenu" ng-show="notebook_vis">
+	  <div class="row nbmenu fix" ng-show="notebook_vis">
 	    <div class="col-lg-7">
 	      <div class="btn-group" role="group" aria-label="...">
 
@@ -203,7 +203,7 @@
 	      </div>
 	    </div> -->
 	  </div> <!-- row -->
-	  <div id="delete_note" class="row delete_note"
+	  <div id="delete_note" class="row delete_note fix"
 	       ng-show="delete_note">
 	    <div class="col-lg-11">
 	      <p>Do you really want to remove the current note?</p>
@@ -217,7 +217,7 @@
 	  </div>
 	  
 	  <!-- Note view -->
-	  <div id="cd_lang" class="row code" ng-show="code">
+	  <div id="cd_lang" class="row code fix" ng-show="code">
 	    <div class="col-lg-11">
 	      <div class="input-group">
 		  <select id="lang">

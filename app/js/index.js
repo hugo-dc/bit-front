@@ -20,8 +20,8 @@
 var app = angular.module('Bitacorapp', []);
 var ipc = require('ipc');
 
-// var dev = false;
-var dev = true;
+var dev = false;
+// var dev = true;
 
 if (dev)
     var SERVER = "http://localhost:3001/";
@@ -72,7 +72,8 @@ app.controller('MainController', function($scope, $http) {
 	    $scope.message = data.messageR;
 	    $scope.initializeNotebooks();
 	}).error(function (data) {
-	    $scope.message = "ERROR: Server cannot be started please close BitacorApp and try again.";
+	    $scope.message = "Initilizing backend server...";
+	    setTimeOut($scope.initializeServer(), 30000);
 	});	
     }
 
@@ -275,7 +276,7 @@ app.controller('MainController', function($scope, $http) {
 	    $scope.lastNoteId = data.ntId;
 	    $scope.note_ix    = data.ntId;
 	    $scope.current    = $scope.nbook_ix;
-
+	    $scope.updateFav();
 	});	
     };
 
@@ -516,6 +517,7 @@ app.controller('MainController', function($scope, $http) {
 	    $http.get(SERVER + "unfav-note/" + $scope.note_ix).success(function (data){
 		$scope.message = data.messageR;
 		$scope.favorite = false;
+		$scope.reloadFavorites();
 	    }).error(function(data){
 		$scope.message = data;
 	    });
@@ -524,6 +526,7 @@ app.controller('MainController', function($scope, $http) {
 	    $http.get(SERVER + "fav-note/" + $scope.note_ix + "/" + $scope.nbook_ix).success(function (data){
 		$scope.message = data.messageR;
 		$scope.favorite = true;
+		$scope.reloadFavorites();
 	    }).error(function(data){
 		$scope.message = data;
 	    });
@@ -863,6 +866,7 @@ app.controller('MainController', function($scope, $http) {
 	    console.log(result.data.successR);
 	    if(result.data.successR){
 		$scope.addHtml(result.data.messageR, lg.value);
+		document.getElementById('code').value = "";
 	    }else{
 		$scope.message = result.data.messageR;
 	    }

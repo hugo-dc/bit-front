@@ -2,8 +2,8 @@ var app = require('app'); // Module to control application life
 var BrowserWindow = require('browser-window'); // Module to create native browser window.
 
 
-// var dev = false;
-var dev = true;
+var dev = false;
+// var dev = true;
 
 // communicates UI with backend
 var ipc = require('ipc');
