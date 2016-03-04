@@ -94,54 +94,13 @@ app.controller('MainController', function($scope, $http) {
 
     $scope.reloadFavorites = function() {
 	console.log("RELOADING FAVORITES...");
+	// Here Gat Favs must return the Name of Parent and Note Title
 	$http.get(SERVER + "get-favs").success(function(data){
 	    console.log("Success...");
 	    console.log(JSON.stringify(data));
 	    $scope.favorites = data;
-	    $scope.fav_data = [];
-	    for(i = 0 ; i < $scope.favorites.length; i++) {
-		var favid  = $scope.favorites[i].fvId;
-		var fparid = $scope.favorites[i].fparId;
-		var noteid = $scope.favorites[i].noteId;
-		$http.get(SERVER + 'get-notebook/' + fparid).success(function(data){
-		    var nbname;
-		    if(data.nbId){
-			nbname = data.nbName;
-		    }
-		    $http.get(SERVER + 'get-note/' + noteid).success(function(data){
-			var nttitle;
-			if(data)
-			    nttitle = data.nTitle
-			$scope.fav_data[favid] = { notebook:  nbname,
-						   note:      nttitle };
-		    });
-		});
-	    }
 	});
     }
-
-    /*
-    $scope.getParentName = function(id) {
-	console.log("Getting Notebook name...");
-	$http.get(SERVER + 'get-notebook/' + id).success(function(data){
-	    console.log(JSON.stringify(data));
-	    if(data.nbId){
-		return data.nbName;
-	    }else{
-		return "";
-	    }
-	});
-    }
-
-    $scope.getNoteName = function(id){
-	$http.get(SERVER + 'get-note/' + id).success(function(data){
-	    if(data)
-		return data.nTitle;
-	    else
-		return "";
-	});
-    }
-    */
     
     $scope.initializeApp = function() {
 	$scope.message = "Connecting to backend server...";
@@ -456,15 +415,12 @@ app.controller('MainController', function($scope, $http) {
 	$scope.message ="";
     }
 
-    $scope.initializeMenu = function(){
-	
-    }
 
     /*----------------------------------------------------------------------
       Notes Main Menu
       --------------------------------------------------------------------*/
     $scope.mnPrev = function() {
-	$scope.initializeMenu();
+//	$scope.initializeMenu();
 
 	console.log($scope.note_ix);
 	// Instead of hardcode 0, set a variable (filled from backend)
@@ -483,13 +439,15 @@ app.controller('MainController', function($scope, $http) {
 	    });
 	}
 	$scope.message ="";
+	$window.scrollTo(0,0);
     }
     
     $scope.mnNext = function(){
-	$scope.initializeMenu();
+//	$scope.initializeMenu();
 	$scope.callNote($scope.note_ix + 1);
 	$http.get(SERVER + "get-next/" + $scope.nbook_ix + "/" + $scope.note_ix).success($scope.noteReceived);
 	$scope.message ="";
+	$window.scrollTo(0,0);
     }
 
     $scope.mnSaveEdit = function() {
