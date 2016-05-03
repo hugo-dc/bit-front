@@ -20,8 +20,8 @@
 var app = angular.module('Bitacorapp', []);
 var ipc = require('ipc');
 
-var dev = false;
-// var dev = true;
+// var dev = false;
+var dev = true;
 
 if (dev)
     var SERVER = "http://localhost:3001/";
@@ -714,6 +714,7 @@ app.controller('MainController', function($scope, $http) {
 	    $scope.addHtml('<img src="../bin/images/' + ssid + '.png"/>');
 	else
 	    $scope.addHtml('<img src="../../../bin/images/' + ssid + '.png"/>');
+	$window.scrollTo(0, document.body.scrollHeight);
     }
 
     $scope.saveCaret = function () {

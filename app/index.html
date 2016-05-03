@@ -63,7 +63,7 @@
 	  <li ng-repeat="fav in favorites">
 	    <a href="#" ng-click="callNote(fav.fntId)">
 	      <span class="fa fa-star fa-1g"> </span> {{fav.fnbName}}
-	      / {{fav.fntTitle}}
+	      / {{fav.fntTitle | limitTo: 12}}
 	    </a>
 	  </li>
           <li>
