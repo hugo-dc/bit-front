@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html id="html" lang="en" ng-app="Beenotes" ng-controller="MainController">
+<html id="html" lang="en" ng-app="Bitacorapp" ng-controller="MainController">
 
 <head>
 
@@ -9,18 +9,25 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Beenotes - {{title}} </title>
+    <title>BitacorApp - {{title}} </title>
 
     <!-- Bootstrap Core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Custom CSS -->
     <link href="css/simple-sidebar.css" rel="stylesheet">
-     <link rel="stylesheet" href="css/custom.css"/>
+    <link rel="stylesheet" href="css/custom.css"/>
+    <link href="css/font-awesome.min.css" rel="stylesheet">
+    <link href="../bower_components/medium-editor/dist/css/medium-editor.css"    rel="stylesheet">
+    <link href="../bower_components/medium-editor/dist/css/themes/bootstrap.css"    rel="stylesheet">
 
     <script src="js/jquery-1.11.3.min.js"></script>
     <script type="text/javascript" src="js/angular.min.js"></script>
-    <script src="js/main.js"></script>
+    <script src="js/index.js"></script>
+    <script>
+      var MediumEditor =
+      require('../bower_components/medium-editor/dist/js/medium-editor.js');
+    </script>
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -30,116 +37,373 @@
     <![endif]-->
 
 </head>
-
 <body>
+  <div id="wrapper">
+    
+    <!-- Sidebar and Note List-->
+    
+      <div id="sidebar-wrapper">
+        <ul class="sidebar-nav">
+          <li class="sidebar-brand">
+            <a href="#">BitacorApp </a> <!--[{{nbook_ix}}/{{note_ix}}]</a>-->
+          </li>
+          <li>
+            <a ng-class="{'active': isActive('index')}" href="#" ng-click="pgHome();">
+	      <span class="fa fa-home fa-1g"></span>
+	      Home
+	    </a>
+          </li>
+          <li ng-repeat="item in notebooks">
+            <a ng-class="{active: isActive(item.nbId)}" href="#"
+	       ng-click="openNotebook(item.nbName);">
+	      <span class="fa fa-file-text-o fa-1g"></span>
+	      {{item.nbName}}
+	    </a>
+          </li>
+	  <li ng-repeat="fav in favorites">
+	    <a href="#" ng-click="callNote(fav.fntId)">
+	      <span class="fa fa-star fa-1g"> </span> {{fav.fnbName}}
+	      / {{fav.fntTitle | limitTo: 12}}
+	    </a>
+	  </li>
+          <li>
+            <a ng-class="{active: isActive('create')}" href="#"
+	       ng-click="pgCreateNotebook();">
+	      <span class="fa fa-plus fa-1g"></span>
+	      Create
+	    </a>
+          </li>
+        </ul>
 
-    <div id="wrapper">
-        <!-- Sidebar -->
-        <div id="sidebar-wrapper">
-            <ul class="sidebar-nav">
-                <li class="sidebar-brand">
-                    <a href="#">
-                      Beenotes
-                    </a>
-                </li>
-                <li>
-                <a ng-class="{'active': isActive('index')}" href="#" ng-click="pgHome();">Home</a>
-                </li>
-                <li ng-repeat="item in notebooks">
-                <a ng-class="{active: isActive(item.id)}" href="#" ng-click="openNotebook(item.id);">{{item.name}}</a>
-                </li>
-                <li>
-                <a ng-class="{active: isActive('create')}" href="#" ng-click="pgCreateNotebook();">Create</a>
-                </li>
-                <li>
-                <a ng-class="{active: isActive('search')}" href="#" ng-click="pgSearchNotebook();">Search</a>
-                </li>
-            </ul>
-        </div>
-        <!-- /#sidebar-wrapper -->
+      </div>
+      <!-- /#sidebar-wrapper -->
 
-        <!-- Page Content -->
-        <div id="page-content-wrapper">
-            <div class="container-fluid">
-              <!-- Loading View -->
-              <div class="row" ng-show="loading_vis">
-                <div class="col-lg-12">
-                  <h3>Loading your notebooks!...</h3>
-                  <img id="loading" src="images/loading.gif"/>
-                </div>
-              </div>
-                
-              </div>
+      <!-- Page Content -->
+      <div id="page-content-wrapper">
+        <div class="container-fluid">
+	  <!-- Loading View -->
+	  <div class="row" ng-show="loading_vis">
+	    <div class="col-lg-12">
+	      <h3>{{message}}</h3>
+	      <img id="loading" src="images/loading.gif"/>
+	      </div>
+	    </div>
             
-              <!-- Welcome View -->
-                <div class="row" ng-show="welcome_vis">
-                    <div class="col-lg-12">
-                        <h1>Welcome!</h1>
-                        <p>{{message}}</p>
-                        <a href="#" ng-click="pgCreateNotebook()" class="btn btn-default">Create Notebook</a>
-                    </div>
-                </div>
+	  <!-- Welcome View -->
+          <div class="row" ng-show="welcome_vis">
+            <div class="col-lg-12">
+              <h1>Welcome!</h1>
+              <p>{{message}}</p>
+              <a href="#" ng-click="pgCreateNotebook()" class="btn btn-default">Create Notebook</a>
+            </div>
+          </div>
 
-             <!-- Notebook View -->
-             <div class="row" ng-show="notebook_vis">
-                <div class="col-lg-12">
-                  <h3>Under construction! :P</h3>
-                </div>
-             </div>
-               
-             </div>
+	  <!-- Notebook Menu -->
+	  <div class="row nbmenu fix" ng-show="notebook_vis">
+	    <div class="col-lg-7">
+	      <div class="btn-group" role="group" aria-label="...">
 
-             <!-- Create View -->
-             <div class="row" ng-show="createn_vis">
-               <div class="col-md-1">
-              
-               </div>
-               <div class="col-md-6">
-                  <h2>Create Notebook!</h2>
+		<!--  PREVIOUS NOTE -->
+		<button type="button"
+			ng-class="{'btn': true,
+				  'btn-default': true,
+				  'disabled': isFirstNote()}"
+			ng-click="mnPrev()"
+			ng-show="viewMode()">
+		  <span class="glyphicon glyphicon-arrow-left"
+			aria-hiden="true"></span> Previous
+		</button>
 
-                  <!--<form class="form-horizontal" name="login">-->
-                  <div id="message">
-                    <p>{{message}}</p> 
-                  </div>
-                  <fieldset>
-                  <div class="form-group">
-                    <div class="col-lg-10">
-                      <input style="width:300px;height:30px" type="text" class="form-control" name="nb_name" placeholder="Name" ng-model="nb_name">
-                    </div>
-                  </div>
-                  <div class="form-group">
-                    <div class="col-lg-10">
-                      <input style="width:300px;height:30px" type="text" class="form-control" name="nb_desc" ng-model="nb_desc" placeholder="Description">
-                    </div>
-                </div>  
-                  <div class="form-group">
-                    <div class="col-lg-10 col-lg-offset-2">
-                      <button type="Aceptar" name="a" id="a" class="btn btn-primary" ng-click="createNotebook(nb_name, nb_desc)">Create</button>
-                    </div>
-                  </div>
-                </fieldset>
-              <!--</form>-->
+		<!-- EDIT NOTE -->
+		<button type="button"
+			ng-class="{'btn' : true, 
+				  'btn-default': true, 
+				  'disabled': isLastNote()}"
+			ng-click="mnNext()"
+			ng-show="viewMode()">
+		  <span class="glyphicon glyphicon-arrow-right"></span> Next
+		</button>
+
+		<!-- SAVE / EDIT -->
+		<button type="button"
+			class="btn btn-default"
+			ng-click="mnSaveEdit()">
+		  <span ng-class="{'fa': true,
+				  'fa-edit': viewMode(), 'fa-floppy-o': editMode(),
+				  'fa-1g': true}"></span> {{save_edit}}
+		</button>
+
+		<!-- FAVORITE -->
+                <button type="button" class="btn btn-default"
+			ng-click="mnFav()" ng-show="viewMode()">
+		  <span ng-class="{'fa' : true, 'fa-star-o':
+				  isNotFav(), 'fa-star': isFav()}"></span> Favorite
+		</button>
+
+		<!-- CREATE -->
+		<button type="button"
+			class="btn btn-default"
+			ng-click="mnCreate()"
+			ng-show="viewMode()">
+		  <span class="fa fa-file-text-o fa-1g"></span> Create
+		</button>
+
+		<!-- CODE -->
+		<button type="button" class="btn btn-default"
+			ng-click="btnCode()" ng-show="editMode()">
+		  <span class="fa fa-code"></span> Code
+		</button>
+
+		<!-- SCREENSHOT -->
+		<button type="button" class="btn btn-default"
+			ng-click="btnSShot()" ng-show="editMode()">
+		    <span class="fa fa-camera-retro"></span>
+		    Screenshot
+		</button>
+
+		<!-- DELETE NOTE -->
+		<button type="button" class="btn btn-default"
+			ng-click="mnDelete()" ng-show="viewMode()">
+		  <span class="fa fa-trash-o"></span>
+		    Delete
+		</button>
+	      </div>
+	      <!--
+	      <div class="btn-group" role="group" aria-label="...">
+		  <button type="button" class="btn btn-default" ng-click="btnHeader()">
+		    <span class="glyphicon glyphicon-header"></span></button>
+		  <button type="button" class="btn btn-default" ng-click="btnBold()">
+		    <span class="fa fa-bold"></span>
+		  </button>
+		  <button type="button" class="btn btn-default" ng-click="btnItalics()">
+		    <span class="fa fa-italic"></span>
+		  </button>
+		  <button type="button" class="btn btn-default" ng-click="btnUList()">
+		    <span class="fa fa-list-ul"></span></button>
+		  <button type="button" class="btn btn-default" ng-click="btnOList()">
+		    <span class="fa fa-list-ol"></span></button>
+		  <button type="button" class="btn btn-default" ng-click="btnLink()">
+		    <span class="fa fa-link"></span></button>
+		  <button type="button" class="btn btn-default" ng-click="btnCode()">
+		    <span class="fa fa-code"></span></button>
+		  <button type="button" class="btn btn-default" ng-click="btnSShot()">
+		    <span class="fa fa-camera-retro"></span></button>
+
+	      </div>
+-->
+ <!-- btn-group -->
+	      {{message}}
+	    </div> <!-- col-lg-6 -->
+	    <!--
+	    <div class="col-lg-4">
+	      <div class="input-group">
+		<input type="text" class="form-control" placeholder="Search for...">
+		<span class="input-group-btn">
+		  <button class="btn btn-default" type="button">Go!</button>
+		</span>
+	      </div>
+	    </div> -->
+	  </div> <!-- row -->
+	  <div id="delete_note" class="row delete_note fix"
+	       ng-show="delete_note">
+	    <div class="col-lg-11">
+	      <p>Do you really want to remove the current note?</p>
+	      <div class="input-group">
+		<div class="input-group-btn">
+		  <button type="button" class="btn btn-default" ng-click="delAccept()">Accept</button>
+		  <button type="button" class="btn btn-danger" ng-click="delCancel()">Cancel</button>
+		</div>
+	      </div>
+	    </div>
+	  </div>
+	  
+	  <!-- Note view -->
+	  <div id="cd_lang" class="row code fix" ng-show="code">
+	    <div class="col-lg-11">
+	      <div class="input-group">
+		  <select id="lang">
+		    <option value="abap">ABAP</option>
+		    <option value="bash">Bash</option>
+		    <option value="c">C</option>
+		    <option value="clojure">Clojure</option>
+		    <option value="cpp">C++</option>
+		    <option value="csharp">C#</option>
+		    <option value="haskell">Haskell</option>
+		    <option value="html">Html</option>
+		    <option value="java">Java</option>
+		    <option value="javascript">Javascript</option>
+		    <option value="markdown">Markdown</option>
+		    <option value="ruby">Ruby</option>
+		    <option value="php">PHP</option>
+		    <option value="visualbasic">Visual Basic</option>
+		  </select>
+		</div>
+		<div class="input-group">
+		  <textarea name="code" id="code" ng-show="code"></textarea>
+		</div>
+		<div class="input-group">
+		  <div class="input-group-btn">
+		    <button type="button" class="btn btn-default"
+			    ng-click="cdAccept()" ng-mousedown="restoreCaret()">Accept</button>
+		    <button type="button" class="btn btn-danger"
+			    ng-click="cdCancel()">Cancel</button>
+		  </div>
+		</div>
+	      </div>
+	    </div>
+
+	  <!--
+	  <div id="lk_title" class="row lk_title" ng-show="edit_lnk">
+	      <div class="col-lg-11">
+		<div class="input-group">
+		  <input type="text" id="lnk_title" class="form-control"
+		  name="lk_title" ng-model="lnk_title"
+			 placeholder="Link Title (Optional)">
+		  <input type="text" class="form-control" name="link"
+			 ng-model="link"
+			 placeholder="http://example.com">
+		</div>
+		<div class="input-group">
+		  <div class="input-group-btn">
+		    <button type="button" class="btn btn-default" ng-click="lnkAccept()">Accept</button>
+		    <button type="button" class="btn btn-danger" ng-click="lnkCancel()">Cancel</button>
+		  </div>
+		</div>
+	      </div>
+	    </div>
+	  -->
+	  <div class="row nbvis" ng-show="notebook_vis">
+	    <div class="col-lg-12">
+	      <div id="path">
+		  <a href="#" ng-click="getYears()">{{title}}</a> /
+		  <a href="#" ng-click="getMonths(year)">{{year}}</a> /
+		  <a href="#" ng-click="getDays(year, month)">{{month}}</a> /
+		  <a href="#" ng-click="getNotes(year, month, day)">
+		    {{day}}</a> / {{nbtitle}} 
+		</div>
+	      <h1 contenteditable="true" id="nbtitle"
+		  class="edit_mode" ng-show="editMode()"
+		  placeholder="Insert title..."></h1>
+	      
+	      <h1 contenteditable="false" id="nbtitlevis"
+		  class="view_mode" ng-show="viewMode()"></h1>
+	      
+		<div class="editable edit_mode" id="note"
+		ng-show="editMode()" ng-blur="saveCaret()"
+		placeholder="Enter Notes..."> </div>
+		<div class="view_mode" id="notevis" ng-show="viewMode()"></div>
+	      </div>
+	    </div>
+
+	    <!-- Edit 
+	    <div class="row" ng-show="edit_vis">
+	      <div class="col-lg-l6">
+		<div class="btn-group" role="group" aria-label="...">
+		  <button type="button" class="btn btn-default" ng-click="mnViewHtml()">
+		    <span class="glyphicon glyphicon-eye-open"></span>
+		  </button>
+		  
+		  <button type="button" class="btn btn-default" ng-click="btnHeader()">
+		    <span class="glyphicon glyphicon-header"></span></button>
+		  <button type="button" class="btn btn-default" ng-click="btnBold()">
+		    <span class="fa fa-bold"></span>
+		  </button>
+		  <button type="button" class="btn btn-default" ng-click="btnItalics()">
+		    <span class="fa fa-italic"></span>
+		  </button>
+		  <button type="button" class="btn btn-default" ng-click="btnUList()">
+		    <span class="fa fa-list-ul"></span></button>
+		  <button type="button" class="btn btn-default" ng-click="btnOList()">
+		    <span class="fa fa-list-ol"></span></button>
+		  <button type="button" class="btn btn-default" ng-click="btnLink()">
+		    <span class="fa fa-link"></span></button>
+		  <button type="button" class="btn btn-default" ng-click="btnCode()">
+		    <span class="fa fa-code"></span></button>
+		  <button type="button" class="btn btn-default" ng-click="btnSShot()">
+		    <span class="fa fa-camera-retro"></span></button>
+		</div>
+		{{message}}
+	      </div>
+	    </div>
+	    -->
+
+		  <!-- TODO: insert drop down here -->
+		  <div class="row nt_title" ng-show="edit_vis">
+		    <div class="col-lg-11">
+		      <div class="input-group">
+			<span class="input-group-addon">Title</span>
+			<input type="text" class="form-control" name="nt_title" ng-model="nbtitle" placeholder="Note Title">
+		      </div>
+		    </div>
+		  </div>
+		  <!--
+		  <div class="row nt_content" ng-show="edit_vis">
+	      <div class="col-lg-12">
+		<textarea name="editor" id="editor"
+		ng-model="markdown" placeholder="Enter markdown here..." ng-change="editorChange()"></textarea>
+	      </div>
+	    </div>
+		  -->
+	    <!-- Navigate View -->
+	    <div class="row" ng-show="navnotes_vis">
+	      <div class="col-lg-12">
+		<h3>{{navigation}}</h3>
+
+		<ul>
+		  <li ng-repeat="item in navitem">
+		    <a href="#" ng-click="openNote(item.ntId);">
+		      {{item.nTitle}}
+		    </a>
+		  </li>
+		  <li ng-repeat="item in navmonth">
+		    <a href="#" ng-click="getNotes(year, month, item);">
+		      {{item}}
+		    </a>
+		  </li>
+		  <li ng-repeat="item in navyear">
+		    <a href="#" ng-click="getDays(searchYear, item);">
+		      {{months[item - 1]}}
+		    </a>
+		  </li>
+		  <li ng-repeat="item in navall">
+		    <a href="#" ng-click="getMonths(item);">
+		      {{item}}
+		    </a>
+		  </li>
+		</ul>
+	      </div>
+	    </div>
+	    <!-- Create View -->
+	    <div class="row" ng-show="createn_vis">
+	      <div class="col-md-6">
+		<h1>Create Notebook!</h1>
+		<!--<form class="form-horizontal" name="login">-->
+		<div id="message">
+		  <p>{{message}}</p> 
+		</div>
+		<fieldset>
+		  <div class="form-group">
+		    <div class="col-lg-10">
+		      <input style="width:300px;height:30px" type="text" class="form-control" name="nb_name" placeholder="Name" ng-model="nb_name">
+		    </div>
+		  </div>
+		  <div class="form-group">
+		    <div class="col-lg-10">
+		      <input style="width:300px;height:30px" type="text" class="form-control" name="nb_desc" ng-model="nb_desc" placeholder="Description">
+		    </div>
+		  </div>  
+		  <div class="form-group">
+		    <div class="col-lg-10 col-lg-offset-2">
+		      <button type="Aceptar" name="a" id="a" class="btn btn-primary" ng-click="createNotebook(nb_name, nb_desc)">Create</button>
+		    </div>
+		  </div>
+		</fieldset>
+		<!--</form>-->
+	      </div>
+	    </div>
               
             </div>
           </div>
-		  
-		   <!-- Search View -->
-                <div class="row" ng-show="search_vis">
-                    <div class="col-lg-12">
-                        <h1>Search your Notebook!</h1>
-                        <p>Find your Notebook!</p>
-						
-						<fieldset>
-						  <div class="form-group">
-							<div class="col-lg-10">
-							  <input style="width:300px;height:30px" type="text" class="form-control" name="nb_search" placeholder="Search" ng-model="nb_search"> <img src="images/iconSearch.png" ng-click="searchNotebook(nb_search)" alt="Search"/>
-							</div>
-						  </div>
-						</div>  
-						</fieldset>
-                    </div>
-                </div>
-            </div>
         </div>
         <!-- /#page-content-wrapper -->
 
@@ -156,6 +420,25 @@
         <!--$("#wrapper").toggleClass("toggled");-->
     <!--});-->
     <!--</script>-->
+    <!--    {{debug}}-->
+    <script>
+      editor = new MediumEditor('.editable', {
+        autoLink: true,
+        placeholder: {
+            text: ''
+        },
+        anchorPreview : true,
+        anchor: {
+            linkValidation: false,
+            placeholderText: 'Paste or type a link',
+            targetCheckbox: false,
+            targetCheckboxText: 'Open in new window'
+        },
+        disableEditing: false
+          });
+
+        
+        </script>
 
 </body>
 
